@@ -64,6 +64,36 @@ function cc_showLicenseHtml() {
   }
 } // cc_showLicenseHtml
 
+/* Support functions */
+
+function supportedPHP() {
+
+  if (function_exists('version_compare')) {
+     if (version_compare(phpversion(), "4.3.0", ">=")) {
+        // you're on 4.3.0 or later
+        return TRUE;
+     } else {
+        // you're not
+        return FALSE;
+     }
+  } else {
+     // we're running a version prior to 4.1.0, by definition unsupported
+     return FALSE;
+  }
+
+} // supportedPHP
+
+function fopenEnabled() {
+
+   // return TRUE if we can open URLs with fopen
+   if (ini_get("allow_url_fopen")) {
+      return TRUE;
+   }
+
+   return FALSE;
+
+} // fopenEnabled
+
 /* Admin functions */
 
 function license_options() {
@@ -76,9 +106,23 @@ echo '
 <a href="http://creativecommons.org">Creative Commons</a> license 
 for your content.  If you select "Include License Badge", the default
 Creative Commons badge, link and RDF will be included in the standard footer.
-</p>
-<p>If you wish to display the license information in a non-standard way, or in
-a custom location, you may do so using 
+</p>';
+
+// make sure we're running on a support PHP configuration
+if (supportedPHP() === FALSE) {
+   echo '<p><strong>wpLicense requires PHP 4.3.0 or later; 
+        you seem to be running version ' . phpversion() . '.</strong></p>';
+}
+
+if (!(fopenEnabled())) {
+   echo '<p><strong>wpLicense relies on retrieving remote information from
+         the Creative Commons web services; your PHP configuration has this
+         functionality disabled, so you will be unable to select a license.
+         </strong></p>.';
+}
+
+echo '<p>If you wish to display the license information in a non-standard 
+way, or in a custom location, you may do so using 
 functions provided by the plugin
 <a href="http://yergler.net/projects/wplicense/wplicense-function-reference"
    target="_blank">
