@@ -3,13 +3,15 @@ function getBlogUrl() {
 } // getBlogUrl
 
 function showSelector() {
-   document.getElementById('licenseSelector').style.display="block";
-   return 0;
+   new Effect.BlindDown('licenseSelector');
+   //document.getElementById('licenseSelector').style.display="block";
+   // return 0;
 } // showSelector
 
 function cancelChanges() {
+   new Effect.DropOut('licenseSelector');
    document.getElementById('working').style.display="none";
-   document.getElementById('licenseSelector').style.display="none";
+   // document.getElementById('licenseSelector').style.display="none";
    document.getElementById('newlicense_name').innerHTML = "";
 
    return 1;
@@ -26,6 +28,7 @@ function hideWorking() {
 
 function retrieveQuestions() {
   cmbLC = document.getElementById("licenseClass");
+
   blog_url = getBlogUrl() + '/wp-content/plugins/wpLicense/admin.php';
 
   ajax = new sack(blog_url);
@@ -104,6 +107,15 @@ var adminRules = {
                         showSelector();
 		} // onclick
 	}, // showLicenseChooser
+	'#removeLicense' : function(el){
+             el.onclick = function(){
+                msg = 'This will remove your current license selection; are you sure?';
+                if (confirm(msg)) {
+                   document.license_options.remove_license.value = '__remove';
+                   document.license_options.submit();
+                } else { alert ('awww...'); }
+             } // onclick
+	}, // removeLicense
         '#licenseClass' : function (el) {
              el.onchange = function() {
                 selectClass();

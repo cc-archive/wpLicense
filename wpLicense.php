@@ -52,6 +52,11 @@ function licenseUri() {
    echo get_option('cc_content_license_uri');
 } // licenseUri
 
+function isLicensed() {
+  // returns True if a license is selected
+  return get_option('cc_content_licensed');
+} // isLicensed
+
 /* Admin functions */
 
 function license_options() {
@@ -83,10 +88,14 @@ functions provided by the plugin
                    value="" />
             <input name="blog_url" id="blog_url" type="hidden"  
                    value="'.get_bloginfo('wpurl').'" />
+            <input name="remove_license" type="hidden"  
+                   value="false" />
 
             <table>
                <tr><th>Current License:</th><td>
-         <a href="'.get_option('cc_content_license_uri').'">'.get_option('cc_content_license').'</a> (<a id="showLicenseChooser" href="#">change</a>)
+         <a href="'.get_option('cc_content_license_uri').'">'.get_option('cc_content_license').'</a> 
+         (<a id="showLicenseChooser" href="#">'.(get_option('cc_content_license')?'change':'select').'</a>)
+         (<a id="removeLicense" href="#">remove</a>)
                </td></tr>
 
                <tr><th>&nbsp;</th><td>
@@ -101,7 +110,7 @@ functions provided by the plugin
                <tr><th>&nbsp;</th>
                  <td>
             License type: <select id="licenseClass">
-                          <option id="-">--</option>
+                          <option id="-">(none)</option>
 ';
     $l_classes = licenseClasses();
     foreach($l_classes as $key => $l_id) {
@@ -175,12 +184,49 @@ function license_js_header() {
 
 } // license_js_header
 
+// Initialize the WordPress content variables
+function init_content_license($reset=false) {
+
+  // call non-destructive add for each option
+  add_option('cc_content_license', '');
+  add_option('cc_content_license_uri', '');
+  add_option('cc_content_license_rdf', '');
+  add_option('cc_content_license_html', '');
+
+  add_option('cc_copyright_holder', '');
+  add_option('cc_creator', '');
+  add_option('cc_include_work', '0');
+  add_option('cc_per_post', '0');
+
+  // if reset is True, destructively reset the values
+  if ($reset == true) {
+     update_option('cc_content_license', '');
+     update_option('cc_content_license_uri', '');
+     update_option('cc_content_license_rdf', '');
+     update_option('cc_content_license_html', '');
+
+     update_option('cc_copyright_holder', '');
+     update_option('cc_creator', '');
+     update_option('cc_include_work', '0');
+     update_option('cc_per_post', '0');
+  } // if resetting
+  
+} // init_content_license
+
 function post_form() {
     global $post_msg;
 
     if (!isset($_POST['submitted']) ) {
         $post_msg = '';
     } else {
+        // check if the license should be removed
+        if ($_POST['remove_license'] == '__remove') {
+           init_content_license(true);
+
+           $post_msg = "<h3>License information removed.</h3>";
+	   return;
+        } // remove license
+
         // check if the license was changed
 	if ($_POST['license_uri'] != get_option('cc_content_license_uri')) {
            // store the new license information
