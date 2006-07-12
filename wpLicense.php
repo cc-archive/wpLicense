@@ -233,6 +233,8 @@ function cc_addAdminPage() {
 // Include the necessary java-script libraries
 function license_js_header() {
 
+  if (strpos($_SERVER['REQUEST_URI'], "wpLicense") === FALSE) return;
+
   $url = get_bloginfo("wpurl");
   $scripts = array('/wp-content/plugins/wpLicense/prototype.js',
               '/wp-content/plugins/wpLicense/effects.js',
