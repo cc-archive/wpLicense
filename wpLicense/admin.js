@@ -3,8 +3,10 @@ function getBlogUrl() {
 } // getBlogUrl
 
 function showSelector(event) {
-   // new Effect.Appear('licenseSelector', {duration: 1.0});
+   // clear the questions div, just in case
+   document.getElementById('license_options').innerHTML = '';
 
+   // show the license class selector
    document.getElementById('licenseSelector').style.display="block";
    event.cancelBubble = true;
 
@@ -34,12 +36,15 @@ function hideWorking() {
 function retrieveQuestions() {
   cmbLC = document.getElementById("licenseClass");
 
+  showWorking();
+
   blog_url = getBlogUrl() + '/wp-content/plugins/wpLicense/admin.php';
 
   ajax = new sack(blog_url);
   ajax.element='license_options';
-  ajax.onLoaded = function() {showWorking();};
-  ajax.onCompletion = function() {updateLicense(); hideWorking(); Behaviour.apply(); };
+  ajax.onCompletion = function() {updateLicense(); 
+                                  hideWorking(); 
+                                  Behaviour.apply(); };
   ajax.setVar('func', 'questions');
   ajax.setVar('class', cmbLC.value);
 
@@ -57,6 +62,8 @@ function updateLicense() {
   var answers = new Array();
   var input_fields = document.getElementsByTagName("select");
 
+  showWorking();
+
   i = 0;
   for (i = 0; i < input_fields.length; i++) {
         // see if this is a license question
@@ -71,7 +78,8 @@ function updateLicense() {
   blog_url = getBlogUrl() + '/wp-content/plugins/wpLicense/admin.php';
 
   ajax = new sack(blog_url);
-  ajax.onCompletion = function() {updateLicense_cb(ajax.response); };
+  ajax.onCompletion = function() {hideWorking(); 
+                                  updateLicense_cb(ajax.response); };
   ajax.setVar('func', 'issue');
   ajax.setVar('class', document.getElementById("licenseClass").value);
   ajax.setVar('answers', answers);
