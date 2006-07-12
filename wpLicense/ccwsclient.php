@@ -10,17 +10,15 @@ function licenseClasses() {
    $l_classes = array();
 
    // retrieve the license 
-   $cobj=curl_init($WS_ROOT);
-   curl_setopt($cobj, CURLOPT_RETURNTRANSFER, 1);
-   $xml=curl_exec($cobj);
-   curl_close($cobj);
+   $xml = file_get_contents($WS_ROOT);
 
    // parse the classes into a hash
    $xmlDoc = new MiniXMLDoc();
    $xmlDoc->fromString($xml);
 
-   $root =& $xmlDoc->getRoot()->getElement('licenses');
-   $licenses =& $root->getAllChildren('license');
+   $root =& $xmlDoc->getRoot();
+   $root =& $root->getElement('licenses');
+   $licenses = $root->getAllChildren('license');
 
    foreach ($licenses as $l) {
       $l_classes[strval($l->attribute('id'))] = strval($l->getValue());
@@ -37,29 +35,38 @@ function licenseQuestions($lclass) {
    $questions = array();
 
    // retrieve the license 
-   $cobj=curl_init($uri);
-   curl_setopt($cobj, CURLOPT_RETURNTRANSFER, 1);
-   $xml=curl_exec($cobj);
-   curl_close($cobj);
+   $xml = file_get_contents($uri);
+   // $cobj=curl_init($uri);
+   // curl_setopt($cobj, CURLOPT_RETURNTRANSFER, 1);
+   // $xml=curl_exec($cobj);
+   // curl_close($cobj);
  
    // parse the classes into a hash
    $xmlDoc = new MiniXMLDoc();
    $xmlDoc->fromString($xml);
 
-   $root =& $xmlDoc->getRoot()->getElement('licenseclass');
-   $fields =& $root->getAllChildren('field');
+   $root =& $xmlDoc->getRoot();
+   $root =& $root->getElement('licenseclass');
+   $fields = $root->getAllChildren('field');
 
    foreach ($fields as $field) {
     $f_id = strval($field->attribute('id'));
     $questions[$f_id] = array();
 
-    $questions[$f_id]['label'] = strval($field->getElement('label')->getValue());
-    $questions[$f_id]['description'] = strval($field->getElement('description')->getValue());
-    $questions[$f_id]['type'] = strval($field->getElement('type')->getValue());
+    $el =& $field->getElement('label');
+    $questions[$f_id]['label'] = strval($el->getValue());
+
+    $el =& $field->getElement('description');
+    $questions[$f_id]['description'] = strval($el->getValue());
+
+    $el =& $field->getElement('type');
+    $questions[$f_id]['type'] = strval($el->getValue());
+
     $questions[$f_id]['options'] = array();
 
     foreach ($field->getAllChildren('enum') as $enum) {
-       $questions[$f_id]['options'][(string)$enum->attribute('id')] = (string)$enum->getElement('label')->getValue();
+       $el =& $enum->getElement('label');
+       $questions[$f_id]['options'][(string)$enum->attribute('id')] = (string)$el->getValue();
     } // for each enum
 
    } // foreach
@@ -83,21 +90,30 @@ function issueLicense($lic_class, $answers) {
 
    // make the web service request
    $uri = $WS_ROOT."license/" . $lic_class . "/issue?answers=" . urlencode($answers_xml);
-   $cobj=curl_init($uri);
-   curl_setopt($cobj, CURLOPT_RETURNTRANSFER, true);
-   $xml=curl_exec($cobj);
-   curl_close($cobj);
+   //$cobj=curl_init($uri);
+   //curl_setopt($cobj, CURLOPT_RETURNTRANSFER, true);
+   //$xml=curl_exec($cobj);
+   //curl_close($cobj);
+   $xml = file_get_contents($uri);
 
    // extract the license information
    $xmlDoc = new MiniXMLDoc();
    $xmlDoc->fromString($xml);
 
-   $root =& $xmlDoc->getRoot()->getElement('result');
+   $root =& $xmlDoc->getRoot();
+   $root =& $root->getElement('result');
 
-   $result["uri"] = strval($root->getElement('license-uri')->getValue());
-   $result["name"] = strval($root->getElement('license-name')->getValue());
-   $result["rdf"] = $root->getElement('rdf')->toString();
-   $result["html"] = $root->getElement('html')->toString();
+   $el =& $root->getElement('license-uri');
+   $result["uri"] = strval($el->getValue());
+
+   $el =& $root->getElement('license-name');
+   $result["name"] = strval($el->getValue());
+
+   $el =& $root->getElement('rdf');
+   $result["rdf"] = $el->toString();
+
+   $el =& $root->getElement('html');
+   $result["html"] = $el->toString();
 
    // $xmldoc = simplexml_load_string($xml);
 
