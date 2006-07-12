@@ -42,18 +42,14 @@ function retrieveQuestions() {
 
   ajax = new sack(blog_url);
   ajax.element='license_options';
-  ajax.onCompletion = function() {updateLicense(); 
-                                  hideWorking(); 
-                                  Behaviour.apply(); };
   ajax.setVar('func', 'questions');
   ajax.setVar('class', cmbLC.value);
 
   ajax.runAJAX();
-} // retrieveQuestions
 
-function selectClass() {
-  retrieveQuestions();
-} // selectClass
+  setTimeout('updateLicense()', 2000);
+  setTimeout('Behaviour.apply()', 3000);
+} // retrieveQuestions
 
 function updateLicense() {
   lic_opts = document.getElementById("license_options");
@@ -131,7 +127,7 @@ var adminRules = {
 	}, // removeLicense
         '#licenseClass' : function (el) {
              el.onchange = function() {
-                selectClass();
+                retrieveQuestions();
              } // onchange
         }, // licenseClass
         '#cancel' : function (el) {
@@ -140,15 +136,14 @@ var adminRules = {
              } // onclick
         }, // #cancel
         '#license_options select' : function (el) {
-             el.onchange = function() {alert ('foo');
+             el.onchange = function() {
                 updateLicense();
              } // onchange
         }, // #lic_questions select
         'select.lic_q' : function (el) {
-             el.onchange = function() {alert ('foo');
+             el.onchange = function() {
                 updateLicense();
              } // onchange
-             el.onfocus = function() { alert ('bar'); }
         }, // #lic_questions select
      };
 

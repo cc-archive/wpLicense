@@ -12,7 +12,7 @@ function getLicenseQuestions($class) {
 
       // generate the appropriate widget
       if ($f_data['type'] == 'enum') {
-         $result .= '<select class="lic_q" onchange="updateLicense();" id="'.$f_id.'" lic_q="true" size="1">';
+         $result .= '<select class="lic_q" id="'.$f_id.'" lic_q="true" size="1">';
 
          foreach ($f_data['options'] as $enum_id=>$enum_val) {
             $result .= '<option value="'. $enum_id . '">' . $enum_val . '</option>';
