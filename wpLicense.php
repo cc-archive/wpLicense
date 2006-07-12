@@ -103,6 +103,7 @@ functions provided by the plugin
          <a href="'.get_option('cc_content_license_uri').'">'.get_option('cc_content_license').'</a> 
          (<a id="showLicenseChooser" href="#">'.(get_option('cc_content_license')?'change':'select').'</a>)
          (<a id="removeLicense" href="#">remove</a>)
+
                </td></tr>
 
                <tr><th>&nbsp;</th><td>
@@ -110,13 +111,17 @@ functions provided by the plugin
 <div id="licenseSelector" name="licenseSelector"
      class="wrap" style="display:none;">
 <table>
-               <tr><th>Selected&nbsp;License:</th>
-                   <td id="newlicense_name">(none)
+               <tr><th><nobr>Selected&nbsp;License:</nobr></th>
+                   <td id="newlicense_name">(none)</td>
+               <td>
+               <img id="working" 
+                    src="'.get_bloginfo('wpurl').'/wp-content/plugins/wpLicense/Throbber-small.gif" 
+                    style="display:none; float:right; margin:0px;padding;0px;"/>
                    </td>
                </tr>
-               <tr><th>&nbsp;</th>
-                 <td>
-            License type: <select id="licenseClass">
+               <tr><th><nobr>License type:</nobr></th>
+                 <td colspan="2">
+             <select id="licenseClass">
                           <option id="-">(none)</option>
 ';
     $license_classes = licenseClasses();
@@ -126,12 +131,12 @@ functions provided by the plugin
     }; // for each...
 
   echo '          </select>
+</td></tr>
+<tr><td>&nbsp;</td>
+<td colspan="2">
          <div id="license_options" class="wrap">
          </div>
 </td></tr>
-               <tr><td colspan="2" align="center">
-                 <img id="working" src="'.get_bloginfo('wpurl').'/wp-content/plugins/wpLicense/progress.gif" style="display:none; width: 100%; height: 10px;"/>
-               </td></tr>
 </table>
 </div>
 
