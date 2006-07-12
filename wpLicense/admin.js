@@ -2,18 +2,23 @@ function getBlogUrl() {
    return document.getElementById('blog_url').value;
 } // getBlogUrl
 
-function showSelector() {
-   new Effect.BlindDown('licenseSelector');
-   //document.getElementById('licenseSelector').style.display="block";
-   // return 0;
+function showSelector(event) {
+   // new Effect.Appear('licenseSelector', {duration: 1.0});
+
+   document.getElementById('licenseSelector').style.display="block";
+   event.cancelBubble = true;
+
+   return true;
 } // showSelector
 
 function cancelChanges() {
-   new Effect.DropOut('licenseSelector');
+   // new Effect.Fade('licenseSelector');
+   document.getElementById('licenseSelector').style.display="none";
+
    document.getElementById('working').style.display="none";
-   // document.getElementById('licenseSelector').style.display="none";
    document.getElementById('newlicense_name').innerHTML = "";
 
+   document.license_options.reset();
    return 1;
 } // cancelChanges
 
@@ -103,8 +108,8 @@ function updateLicense_cb(result) {
 /* Register Javascript Rules */
 var adminRules = {
 	'#showLicenseChooser' : function(el){
-		el.onclick = function(){
-                        showSelector();
+		el.onclick = function(event){
+                        showSelector(event);
 		} // onclick
 	}, // showLicenseChooser
 	'#removeLicense' : function(el){
