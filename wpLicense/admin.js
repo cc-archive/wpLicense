@@ -113,7 +113,7 @@ var adminRules = {
                 if (confirm(msg)) {
                    document.license_options.remove_license.value = '__remove';
                    document.license_options.submit();
-                } else { alert ('awww...'); }
+                } 
              } // onclick
 	}, // removeLicense
         '#licenseClass' : function (el) {

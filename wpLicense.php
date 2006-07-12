@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Content License
+Plugin Name: wpLicense
 Plugin URI: http://yergler.net/projects/wplicense
 Description: Allows selection of a <a href="http://creativecommons.org">Creative Commons</a> license for blog content.
 Version: 0.3.1
@@ -26,7 +26,6 @@ Author URI: http://yergler.net
 */
 
 require('wpLicense/ccwsclient.php');
-// require('wpLicense/admin.php');
 
 /* Template Functions */
 
@@ -54,8 +53,16 @@ function licenseUri() {
 
 function isLicensed() {
   // returns True if a license is selected
-  return get_option('cc_content_licensed');
+  return get_option('cc_content_license');
 } // isLicensed
+
+function cc_showLicenseHtml() {
+  if (get_option('cc_include_footer')) {
+     if (isLicensed()) {
+        echo '<div class="license_block">'.licenseHtml(0).'</div>';
+     }
+  }
+} // cc_showLicenseHtml
 
 /* Admin functions */
 
@@ -142,13 +149,17 @@ functions provided by the plugin
                  <td><input type="checkbox" name="perPost" '.(get_option('cc_per_post')=='1'?"checked":"").'" ></td> 
              </tr> -->
 
+              <tr><td colspan="2">&nbsp;</td></tr>
+              <tr><th>Include license badge in default footer?</th>
+                  <td><input type="checkbox" name="includeFooter" '.(get_option('cc_include_footer')=='1'?"checked":"").'" ></td> 
+             </tr> 
+               
                <tr><th>&nbsp;</th>
                    <td><input type="submit" value="save" />
                        <input type="reset"  value="cancel" id="cancel" />
                    </td>
                </tr>
                </td></tr>
-
             </table>
             </form>
          </div>
@@ -198,6 +209,8 @@ function init_content_license($reset=false) {
   add_option('cc_include_work', '0');
   add_option('cc_per_post', '0');
 
+  add_option('cc_include_footer', '1');
+
   // if reset is True, destructively reset the values
   if ($reset == true) {
      update_option('cc_content_license', '');
@@ -209,6 +222,9 @@ function init_content_license($reset=false) {
      update_option('cc_creator', '');
      update_option('cc_include_work', '0');
      update_option('cc_per_post', '0');
+
+     update_option('cc_include_footer', '1');
+
   } // if resetting
   
 } // init_content_license
@@ -250,6 +266,11 @@ function post_form() {
         } else {
            update_option('cc_per_post', '0');
         }
+        if (isset($_POST['includeFooter'])) {
+           update_option('cc_include_footer', '1');
+        } else {
+           update_option('cc_include_footer', '0');
+        }
 
         // check if we're including work metadata
         if (get_option('cc_include_work') == '1') {
@@ -285,7 +306,8 @@ add_action('admin_head', 'post_form');
 
 /* content action/filter registration */
 
-// add_action('wp_head',  (show global RDF, if turned on)
+// show global RDF + HTML, if turned on
+add_action('wp_footer', 'cc_showLicenseHtml');
 // add_filter('the_content',  (show per-post RDF, if turned on)
 
 ?>
