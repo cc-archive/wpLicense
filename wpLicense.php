@@ -1,14 +1,16 @@
 <?php
 /*
 Plugin Name: wpLicense
-Plugin URI: http://yergler.net/projects/wplicense
+Plugin URI: http://wiki.creativecommons.org/WpLicense
 Description: Allows selection of a <a href="http://creativecommons.org">Creative Commons</a> license for blog content.
-Version: 0.5.2
-Author: Nathan R. Yergler <nathan@yergler.net>
-Author URI: http://yergler.net
+Version: 0.6.0
+Author: Nathan R. Yergler <nathan@creativecommons.org>
+Author URI: http://wiki.creativecommons.org/User:NathanYergler
 */
 
-/*  Copyright 2005  Nathan R. Yergler  (email : nathan@yergler.net)
+/*  Copyright 2005-2006,
+    Creative Commons (email : software@creativecommons.org), 
+    Nathan R. Yergler (email : nathan@creativecommons.org)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
