@@ -79,6 +79,11 @@ function issueLicense($lic_class, $answers) {
    global $WS_ROOT;
    $result = array();
 
+   // do some brain-dead validation on $answers
+   if (!isset($answers['jurisdiction'])) {
+      $answers['jurisdiction'] = '-';
+   } 
+
    // assemble the answers XML fragment
    $answers_xml = "<answers><license-" . $lic_class . ">";
 
