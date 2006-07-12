@@ -3,7 +3,7 @@
 Plugin Name: wpLicense
 Plugin URI: http://yergler.net/projects/wplicense
 Description: Allows selection of a <a href="http://creativecommons.org">Creative Commons</a> license for blog content.
-Version: 0.3.1
+Version: 0.5.0
 Author: Nathan R. Yergler <nathan@yergler.net>
 Author URI: http://yergler.net
 */
@@ -74,7 +74,11 @@ echo '
          <h2>Content License</h2>
 <p>This page allows you to choose a 
 <a href="http://creativecommons.org">Creative Commons</a> license 
-for your content.  This license may be included in templates using 
+for your content.  If you select "Include License Badge", the default
+Creative Commons badge, link and RDF will be included in the standard footer.
+</p>
+<p>If you wish to display the license information in a non-standard way, or in
+a custom location, you may do so using 
 functions provided by the plugin
 <a href="http://yergler.net/projects/wplicense/wplicense-function-reference"
    target="_blank">
