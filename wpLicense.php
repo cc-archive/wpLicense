@@ -88,7 +88,7 @@ functions provided by the plugin
             <form name="license_options" method="post" 
                   action="' . $_SERVER[REQUEST_URI] . '">
 
-            <input name="submitted"    type="hidden" value="true" />
+            <input name="submitted"    type="hidden" value="wplicense" />
             <input name="license_name" type="hidden" 
                    value="'.get_option('cc_content_license').'" />
             <input name="license_uri"  type="hidden"  
@@ -242,9 +242,7 @@ function init_content_license($reset=false) {
 function post_form() {
     global $post_msg;
 
-    if (!isset($_POST['submitted']) ) {
-        $post_msg = '';
-    } else {
+    if ( (isset($_POST['submitted'])) && ($_POST['submitted'] == 'wplicense')) {
         // check if the license should be removed
         if ($_POST['remove_license'] == '__remove') {
            init_content_license(true);
