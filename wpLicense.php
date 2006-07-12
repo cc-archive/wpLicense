@@ -64,6 +64,26 @@ function cc_showLicenseHtml() {
   }
 } // cc_showLicenseHtml
 
+function cc_rss2_ns() {
+
+echo 'xmlns:creativeCommons="http://backend.userland.com/creativeCommonsRssModule"';
+
+} // cc_rss2_ns
+
+function cc_rss2_head() {
+     if (isLicensed()) {
+     	echo '<creativeCommons:license>'.licenseUri().'</creativeCommons:license>';
+     }
+
+} // cc_rss2_head
+
+function cc_atom_head() {
+     if (isLicensed()) {
+     	echo '<link rel="license" type="text/html" href="'.licenseUri().'" />';
+     }
+
+} // cc_atom_head
+
 /* Support functions */
 
 function supportedPHP() {
@@ -365,6 +385,12 @@ add_action('admin_head', 'post_form');
 
 // show global RDF + HTML, if turned on
 add_action('wp_footer', 'cc_showLicenseHtml');
+
+// feed licensing
+add_action('rss2_ns', 'cc_rss2_ns');
+add_action('rss2_head', 'cc_rss2_head');
+add_action('atom_head', 'cc_atom_head');
+
 // add_filter('the_content',  (show per-post RDF, if turned on)
 
 ?>
