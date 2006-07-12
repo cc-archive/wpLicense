@@ -148,3 +148,4 @@ var adminRules = {
      };
 
 Behaviour.register(adminRules);
+
