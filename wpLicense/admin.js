@@ -1,3 +1,7 @@
+function getBlogUrl() {
+   return document.getElementById('blog_url').value;
+} // getBlogUrl
+
 function showSelector() {
    document.getElementById('licenseSelector').style.display="block";
    return 0;
@@ -13,7 +17,7 @@ function cancelChanges() {
 
 function showWorking() {
    document.getElementById('working').style.display="block";
-   // document.getElementById("license_options").innerHTML = "<em>working...</em>";
+
 } // showWorking
 
 function hideWorking() {
@@ -22,23 +26,25 @@ function hideWorking() {
 
 function retrieveQuestions() {
   cmbLC = document.getElementById("licenseClass");
-  x_getLicenseQuestions(cmbLC.value, retrieveQuestions_cb);
+  blog_url = getBlogUrl() + '/wp-content/plugins/wpLicense/admin.php';
+
+  ajax = new sack(blog_url);
+  ajax.element='license_options';
+  ajax.onLoaded = function() {showWorking();};
+  ajax.onCompletion = function() {updateLicense(); hideWorking(); Behaviour.apply(); };
+  ajax.setVar('func', 'questions');
+  ajax.setVar('class', cmbLC.value);
+
+  ajax.runAJAX();
 } // retrieveQuestions
 
-function retrieveQuestions_cb(result) {
-   document.getElementById("license_options").innerHTML = result;
-   hideWorking();
-   updateLicense();
-} // retrieveQuestions_cb
-
 function selectClass() {
-  showWorking();
   retrieveQuestions();
 } // selectClass
 
 function updateLicense() {
-  showWorking();
   lic_opts = document.getElementById("license_options");
+
   // collect the question answers into an array
   var answers = new Array();
   var input_fields = document.getElementsByTagName("select");
@@ -52,8 +58,18 @@ function updateLicense() {
   } // for each child node
 
   answers = answers.join();
+
   // call the server side license issue function
-  x_getLicense(document.getElementById("licenseClass").value, answers, updateLicense_cb);
+  blog_url = getBlogUrl() + '/wp-content/plugins/wpLicense/admin.php';
+
+  ajax = new sack(blog_url);
+  ajax.onCompletion = function() {updateLicense_cb(ajax.response); };
+  ajax.setVar('func', 'issue');
+  ajax.setVar('class', document.getElementById("licenseClass").value);
+  ajax.setVar('answers', answers);
+
+  ajax.runAJAX();
+
 } // updateLicense
 
 function updateLicense_cb(result) {
@@ -78,6 +94,37 @@ function updateLicense_cb(result) {
    href_text = '<a href="' + licenseInfo['uri'] + '">' + licenseInfo['name'] + '</a>';
    document.getElementById("newlicense_name").innerHTML = href_text;
 
-   hideWorking();
 } // updateLicense_cb
 
+
+/* Register Javascript Rules */
+var adminRules = {
+	'#showLicenseChooser' : function(el){
+		el.onclick = function(){
+                        showSelector();
+		} // onclick
+	}, // showLicenseChooser
+        '#licenseClass' : function (el) {
+             el.onchange = function() {
+                selectClass();
+             } // onchange
+        }, // licenseClass
+        '#cancel' : function (el) {
+             el.onclick = function() {
+                cancelChanges();
+             } // onclick
+        }, // #cancel
+        '#license_options select' : function (el) {
+             el.onchange = function() {alert ('foo');
+                updateLicense();
+             } // onchange
+        }, // #lic_questions select
+        'select.lic_q' : function (el) {
+             el.onchange = function() {alert ('foo');
+                updateLicense();
+             } // onchange
+             el.onfocus = function() { alert ('bar'); }
+        }, // #lic_questions select
+     };
+
+Behaviour.register(adminRules);

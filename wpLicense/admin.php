@@ -1,5 +1,7 @@
 <?php
 
+require ('ccwsclient.php');
+
 function getLicenseQuestions($class) {
 
    $result = '<table>';
@@ -10,7 +12,7 @@ function getLicenseQuestions($class) {
 
       // generate the appropriate widget
       if ($f_data['type'] == 'enum') {
-         $result .= '<select id="'.$f_id.'" lic_q="true" onchange="updateLicense()" size="1">';
+         $result .= '<select class="lic_q" onchange="updateLicense();" id="'.$f_id.'" lic_q="true" size="1">';
 
          foreach ($f_data['options'] as $enum_id=>$enum_val) {
             $result .= '<option value="'. $enum_id . '">' . $enum_val . '</option>';
@@ -49,5 +51,19 @@ function getLicense($lclass, $answer_string) {
 
    return implode(";", $flatten);
 } // getLicense
+
+
+ob_start();
+
+$target = $_POST['func'];
+
+if ($target == 'questions') {
+   echo getLicenseQuestions($_POST['class']);
+} 
+if ($target == 'issue') {
+   echo getLicense($_POST['class'], $_POST['answers']);
+} // issue
+
+ob_end_flush();
 
 ?>

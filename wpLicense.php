@@ -3,7 +3,7 @@
 Plugin Name: Content License
 Plugin URI: http://yergler.net/projects/wplicense
 Description: Allows selection of a <a href="http://creativecommons.org">Creative Commons</a> license for blog content.
-Version: 0.2
+Version: 0.3.1
 Author: Nathan R. Yergler <nathan@yergler.net>
 Author URI: http://yergler.net
 */
@@ -25,9 +25,8 @@ Author URI: http://yergler.net
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-require('wpLicense/Sajax.php');
 require('wpLicense/ccwsclient.php');
-require('wpLicense/admin.php');
+// require('wpLicense/admin.php');
 
 /* Template Functions */
 
@@ -82,10 +81,12 @@ functions provided by the plugin
                    value="" />
             <input name="license_html" type="hidden"  
                    value="" />
+            <input name="blog_url" id="blog_url" type="hidden"  
+                   value="'.get_bloginfo('wpurl').'" />
 
             <table>
                <tr><th>Current License:</th><td>
-         <a href="'.get_option('cc_content_license_uri').'">'.get_option('cc_content_license').'</a> (<a href="#" onclick="showSelector();">change</a>)
+         <a href="'.get_option('cc_content_license_uri').'">'.get_option('cc_content_license').'</a> (<a id="showLicenseChooser" href="#">change</a>)
                </td></tr>
 
                <tr><th>&nbsp;</th><td>
@@ -99,7 +100,7 @@ functions provided by the plugin
                </tr>
                <tr><th>&nbsp;</th>
                  <td>
-            License type: <select id="licenseClass" onchange="selectClass();">
+            License type: <select id="licenseClass">
                           <option id="-">--</option>
 ';
     $l_classes = licenseClasses();
@@ -134,8 +135,7 @@ functions provided by the plugin
 
                <tr><th>&nbsp;</th>
                    <td><input type="submit" value="save" />
-                       <input type="reset"  value="cancel" 
-                              onclick="cancelChanges();"/>
+                       <input type="reset"  value="cancel" id="cancel" />
                    </td>
                </tr>
                </td></tr>
@@ -148,6 +148,7 @@ functions provided by the plugin
       ';
 } // license_options
 
+// Add the Content License link to the options page listing
 function cc_addAdminPage() {
 	if (function_exists('add_options_page')) {
 		add_options_page('Content License', '<img src="'.get_bloginfo('wpurl').'/wp-content/plugins/wpLicense/cc_admin.png" style="padding-right: 3px; position: relative; top: 2px;">Content License', 5, basename(__FILE__), 'license_options');
@@ -155,19 +156,24 @@ function cc_addAdminPage() {
 } // addAdminPage
 
 
+// Include the necessary java-script libraries
 function license_js_header() {
 
-    echo '<script type="text/javascript" src="';
-    bloginfo("wpurl");
-    echo '/wp-content/plugins/wpLicense/admin.js"> </script>';
+  $url = get_bloginfo("wpurl");
+  $scripts = array('/wp-content/plugins/wpLicense/prototype.js',
+              '/wp-content/plugins/wpLicense/effects.js',
+              '/wp-content/plugins/wpLicense/dragdrop.js',
+              '/wp-content/plugins/wpLicense/controls.js',
+              '/wp-content/plugins/wpLicense/behaviour.js',
+              '/wp-content/plugins/wpLicense/tw-sack.js',
+              '/wp-content/plugins/wpLicense/admin.js',
+             );
+
+  foreach ($scripts as $script) {
+    echo '<script type="text/javascript" src="'.$url.$script.'"> </script>';
+  }
 
 } // license_js_header
-
-function sajax_header() {
-    echo "<script>";
-    sajax_show_javascript();
-    echo "</script>";
-} // sajax_header
 
 function post_form() {
     global $post_msg;
@@ -226,20 +232,14 @@ function post_form() {
 
 } // post_form
 
-/* Sajax Loading */
-
-sajax_init();
-// $sajax_debug_mode = 1;
-sajax_export("getLicenseQuestions");
-sajax_export("getLicense");
-
-sajax_handle_client_request();
-
-/* action/filter registration */
+/* admin interface action registration */
 add_action('admin_menu', 'cc_addAdminPage');
-add_action('admin_head', 'sajax_header');
 add_action('admin_head', 'license_js_header');
 add_action('admin_head', 'post_form');
 
+/* content action/filter registration */
+
+// add_action('wp_head',  (show global RDF, if turned on)
+// add_filter('the_content',  (show per-post RDF, if turned on)
 
 ?>
