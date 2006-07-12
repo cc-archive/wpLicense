@@ -90,10 +90,6 @@ function issueLicense($lic_class, $answers) {
 
    // make the web service request
    $uri = $WS_ROOT."license/" . $lic_class . "/issue?answers=" . urlencode($answers_xml);
-   //$cobj=curl_init($uri);
-   //curl_setopt($cobj, CURLOPT_RETURNTRANSFER, true);
-   //$xml=curl_exec($cobj);
-   //curl_close($cobj);
    $xml = file_get_contents($uri);
 
    // extract the license information
@@ -112,15 +108,9 @@ function issueLicense($lic_class, $answers) {
    $el =& $root->getElement('rdf');
    $result["rdf"] = $el->toString();
 
-   $el =& $root->getElement('html');
-   $result["html"] = $el->toString();
-
-   // $xmldoc = simplexml_load_string($xml);
-
-   //$result["uri"] = (string)$xmldoc->{"license-uri"};
-   //$result["name"] = (string)$xmldoc->{"license-name"};
-   //$result["rdf"] = (string)$xmldoc->rdf->asXML();
-   //$result["html"] = (string)$xmldoc->html->asXML();
+   // use a regexp to extract the HTML to avoid any problems with miniXml
+   preg_match("/(<html>)([\s\S]*)(<\/html>)/", $xml, $matches);
+   $result["html"] = $matches[2];
 
    return $result;
 } // issueLicense
