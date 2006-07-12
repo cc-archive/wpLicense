@@ -1,6 +1,6 @@
 <?php
 
-require ('ccwsclient.php');
+require_once(dirname(__FILE__).'/ccwsclient.php');
 
 function getLicenseQuestions($class) {
 

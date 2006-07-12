@@ -119,8 +119,9 @@ functions provided by the plugin
             License type: <select id="licenseClass">
                           <option id="-">(none)</option>
 ';
-    $l_classes = licenseClasses();
-    foreach($l_classes as $key => $l_id) {
+    $license_classes = licenseClasses();
+
+    foreach($license_classes as $key => $l_id) {
           echo '<option value="' . $key . '" >' . $l_id . '</option>';
     }; // for each...
 
