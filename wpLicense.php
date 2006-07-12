@@ -110,14 +110,17 @@ Creative Commons badge, link and RDF will be included in the standard footer.
 
 // make sure we're running on a support PHP configuration
 if (supportedPHP() === FALSE) {
-   echo '<p><strong>wpLicense requires PHP 4.3.0 or later; 
+   echo '<p style="color:red;"><strong>wpLicense requires PHP 4.3.0 or later; 
         you seem to be running version ' . phpversion() . '.</strong></p>';
 }
 
 if (!(fopenEnabled())) {
-   echo '<p><strong>wpLicense relies on retrieving remote information from
-         the Creative Commons web services; your PHP configuration has this
-         functionality disabled, so you will be unable to select a license.
+   echo '<p><strong>Your PHP configuration does not allow retrieving
+         information from remote servers.  wpLicense will use its included
+         licensing information instead of the Creative Commons web services.
+         Note that under this configuration new license versions 
+         and jurisdictions will not be automatically available upon release, 
+         and you will need to manually upgrade if want to use a new license.
          </strong></p>.';
 }
 
