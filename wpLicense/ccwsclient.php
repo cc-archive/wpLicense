@@ -13,14 +13,11 @@ function retrieveFile($path) {
    global $FS_ROOT;
 
    // try to retrieve the information from the CC web services
-   try {
       $result = file_get_contents($WS_ROOT.$path);
   
       if (!($result === FALSE)) {
          return $result;
       }
-   } catch (Exception $e) {
-   }
 
    // fallback to filesystem cache
    if (!$path) {
@@ -156,12 +153,8 @@ function issueLicense($lic_class, $answers) {
 
    // make the web service request
    $xml = FALSE;
-   try {
       $uri = $WS_ROOT."license/" . $lic_class . "/issue?answers=" . urlencode($answers_xml);
       $xml = file_get_contents($uri);
-   } catch (Exception $e) {
-      $xml = FALSE;
-   }
 
    // check if remote retrieval failed and fall back to local if necessary
    if (!$xml) {
