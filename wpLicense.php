@@ -27,7 +27,7 @@ Author URI: http://wiki.creativecommons.org/User:NathanYergler
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-require('wpLicense/ccwsclient.php');
+require(dirname(__FILE__) . '/wpLicense/ccwsclient.php');
 
 /* Template Functions */
 
