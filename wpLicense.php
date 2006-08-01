@@ -3,7 +3,7 @@
 Plugin Name: wpLicense
 Plugin URI: http://wiki.creativecommons.org/WpLicense
 Description: Allows selection of a <a href="http://creativecommons.org">Creative Commons</a> license for blog content.
-Version: 0.6.1
+Version: 0.7
 Author: Nathan R. Yergler <nathan@creativecommons.org>
 Author URI: http://wiki.creativecommons.org/User:NathanYergler
 */
@@ -155,7 +155,7 @@ if (!(fopenEnabled())) {
 echo '<p>If you wish to display the license information in a non-standard 
 way, or in a custom location, you may do so using 
 functions provided by the plugin
-<a href="http://yergler.net/projects/wplicense/wplicense-function-reference"
+<a href="http://wiki.creativecommons.org/WpLicense_Function_Reference"
    target="_blank">
 (function reference)</a>.</p>
 
@@ -399,6 +399,8 @@ add_action('rss2_ns', 'cc_rss2_ns');
 add_action('rss2_head', 'cc_rss2_head');
 add_action('atom_head', 'cc_atom_head');
 
-// add_filter('the_content',  (show per-post RDF, if turned on)
+// widget support
+require(dirname(__FILE__) . '/wpLicense/widget.php');
+
 
 ?>
