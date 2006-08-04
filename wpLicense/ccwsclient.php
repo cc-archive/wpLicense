@@ -5,6 +5,17 @@ require_once(dirname(__FILE__).'/minixml.inc.php');
 $WS_ROOT = "http://api.creativecommons.org/rest/1.5/";
 $FS_ROOT = dirname(__FILE__).'/static_xml/';
 
+function fopenEnabled() {
+
+   // return TRUE if we can open URLs with fopen
+   if (ini_get("allow_url_fopen")) {
+      return TRUE;
+   }
+
+   return FALSE;
+
+} // fopenEnabled
+
 function retrieveFile($path) {
    // retrieve the specified path from the web services root or, 
    // if unavailable, from the local static cache
@@ -12,19 +23,21 @@ function retrieveFile($path) {
    global $WS_ROOT;
    global $FS_ROOT;
 
+if (fopenEnabled()) {
    // try to retrieve the information from the CC web services
       $result = file_get_contents($WS_ROOT.$path);
   
       if (!($result === FALSE)) {
          return $result;
       }
-
+} else {
    // fallback to filesystem cache
    if (!$path) {
       $path = "classes";
    }
 
    return file_get_contents($FS_ROOT.$path);
+}
 
 } // retrieveFile
 
@@ -153,11 +166,11 @@ function issueLicense($lic_class, $answers) {
 
    // make the web service request
    $xml = FALSE;
+if (fopenEnabled()) {
       $uri = $WS_ROOT."license/" . $lic_class . "/issue?answers=" . urlencode($answers_xml);
       $xml = file_get_contents($uri);
-
+} else {
    // check if remote retrieval failed and fall back to local if necessary
-   if (!$xml) {
      $xml = localIssue($answers_xml);
    }
 

@@ -105,16 +105,6 @@ function supportedPHP() {
 
 } // supportedPHP
 
-function fopenEnabled() {
-
-   // return TRUE if we can open URLs with fopen
-   if (ini_get("allow_url_fopen")) {
-      return TRUE;
-   }
-
-   return FALSE;
-
-} // fopenEnabled
 
 /* Admin functions */
 
@@ -137,18 +127,6 @@ if (supportedPHP() === FALSE) {
 
    // close the div
    echo '</div>';
-   return;
-}
-
-if (!(fopenEnabled())) {
-   echo '<p><strong>Your PHP configuration does not allow retrieving
-         information from remote servers.</strong>  This release of WpLicense requires
-         that <code>allow_url_fopen</allow> be set On in <code>php.ini</code>.
-         </p><p>See <a href="http://wiki.creativecommons.org/WpLicense">the
-         WpLicense page</a> for details on using WpLicense without this
-         feature.</p>.';
-
-   echo "</div>";
    return;
 }
 
@@ -177,9 +155,30 @@ functions provided by the plugin
             <input name="remove_license" type="hidden"  
                    value="false" />
 
+
             <table>
                <tr><th>Current License:</th><td>
-         <a href="'.get_option('cc_content_license_uri').'">'.get_option('cc_content_license').'</a> 
+         <a href="'.get_option('cc_content_license_uri').'">'.get_option('cc_content_license').'</a>';
+
+if (!fopenEnabled ()) {
+
+$partner_href = "http://creativecommons.org/license/?partner=wplicense&jurisdiction_choose=1&exit_url=" . ($_SERVER['HTTPS']?"https://":"http://")  . $_SERVER['SERVER_NAME'] .":" . $_SERVER['SERVER_PORT'] . $_SERVER['SCRIPT_NAME'] . "?page=wpLicense.php%26submitted=from_partner%26license_uri=[license_url]%26license_name=[license_name]%26license_image=[license_button]";
+
+echo '
+         (<a id="partnerChooser" href="'.$partner_href.'">'.(get_option('cc_content_license')?'change':'select').'</a>)
+         (<a id="removeLicense" href="#">remove</a>)
+
+</td></tr>
+<tr><td>&nbsp;</td>
+<td><em>Your webhost has disabled remote url access via PHP.</em>
+<p>
+  You can still select a license, but you will be temporarily redirected from the WordPress administrative interface to complete the process.  No personal information will be passed to Creative Commons.</p></td>
+</tr>
+';
+
+} else {
+
+echo '
          (<a id="showLicenseChooser" href="#">'.(get_option('cc_content_license')?'change':'select').'</a>)
          (<a id="removeLicense" href="#">remove</a>)
 
@@ -221,18 +220,13 @@ functions provided by the plugin
 
                  </td></tr>
 
-             <tr><th>Include work metadata?</th>
-                 <td><input type="checkbox" name="workMeta" '.(get_option('cc_include_work')=='1'?"checked":"").'" ></td>
-             </tr>
-             <tr><th>Creator</th>
-                 <td><input class="disabled" name="creator" value="'.get_option('cc_creator').'" ></td>
-             </tr>
-             <tr><th>Copyright Holder</th>
-                 <td><input name="holder" value="'.get_option('cc_copyright_holder').'" ></td>
-             </tr>
 <!--             <tr><th>Include per-post license information?</th>
                  <td><input type="checkbox" name="perPost" '.(get_option('cc_per_post')=='1'?"checked":"").'" ></td> 
              </tr> -->
+';
+}
+
+echo '
 
               <tr><td colspan="2">&nbsp;</td></tr>
               <tr><th>Include license badge in default footer?</th>
@@ -319,6 +313,7 @@ function init_content_license($reset=false) {
 function post_form() {
     global $post_msg;
 
+    // check for standard return (using web services
     if ( (isset($_POST['submitted'])) && ($_POST['submitted'] == 'wplicense')) {
         // check if the license should be removed
         if ($_POST['remove_license'] == '__remove') {
@@ -338,14 +333,7 @@ function post_form() {
         }
 
         // store the settings
-        update_option('cc_copyright_holder', $_POST['holder']);
-        update_option('cc_creator', $_POST['creator']);
 
-        if (isset($_POST['workMeta'])) {
-           update_option('cc_include_work', '1');
-        } else {
-           update_option('cc_include_work', '0');
-        }
         if (isset($_POST['perPost'])) {
            update_option('cc_per_post', '1');
         } else {
@@ -357,30 +345,26 @@ function post_form() {
            update_option('cc_include_footer', '0');
         }
 
-        // check if we're including work metadata
-        if (get_option('cc_include_work') == '1') {
-           // generate the work RDF and update the license_rdf
-           $work_rdf = '<Work rdf:about="">
-   <dc:title>'.get_bloginfo('name').'</dc:title>
-   <dc:date>'.date('Y').'</dc:date>
-   <dc:description>'.get_bloginfo('description').'</dc:description>
-   <dc:creator><Agent>
-      <dc:title>'.get_option('cc_creator').'</dc:title>
-   </Agent></dc:creator>
-   <dc:rights><Agent>
-      <dc:title>'.get_option('cc_copyright_holder').'</dc:title>
-   </Agent></dc:rights>
-   <dc:source rdf:resource="source"/>
-   <license rdf:resource="'.get_option('cc_content_license_uri').'" />
-</Work>';
+        $post_msg = "<h3>License information updated.</h3>";
+    } // standard web services post 
 
-           update_option('cc_content_license_rdf', preg_replace('/<Work [\s\S]*<\/Work>/', $work_rdf, get_option('cc_content_license_rdf')));
-           update_option('cc_content_license_html', preg_replace('/<Work [\s\S]*<\/Work>/', $work_rdf, get_option('cc_content_license_html')));
+    // check for return from partner interface
+    if ( (isset($_GET['submitted'])) && ($_GET['submitted'] == 'from_partner')){
 
+	if ($_GET['license_uri'] != get_option('cc_content_license_uri')) {
+
+	   // construct the HTML block
+	   $html='<a rel="license" href="' . $_GET['license_uri'] . '"><img alt="Creative Commons License" border="0" src="' .$_GET['license_image'] . '"/></a><br/>This work is licensed under a <a rel="license" href="' .$_GET['license_uri'] . '">Creative Commons ' .$_GET['license_name'] . ' License</a>.';
+
+           // store the new license information
+           update_option('cc_content_license', $_GET['license_name']);
+           update_option('cc_content_license_uri', $_GET['license_uri']);
+           update_option('cc_content_license_rdf', '');
+           update_option('cc_content_license_html', $html);
         }
 
         $post_msg = "<h3>License information updated.</h3>";
-    }
+    } // partner interface return
 
 } // post_form
 
