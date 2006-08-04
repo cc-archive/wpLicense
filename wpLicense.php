@@ -193,7 +193,7 @@ echo '
                    <td id="newlicense_name">(none)</td>
                <td>
                <img id="working" 
-                    src="'.get_bloginfo('wpurl').'/wp-content/plugins/wpLicense/Throbber-small.gif" 
+                    src="'.get_bloginfo('wpurl').'/wp-content/plugins/wpLicense/wpLicense/Throbber-small.gif" 
                     style="display:none; float:right; margin:0px;padding;0px;"/>
                    </td>
                </tr>
@@ -250,7 +250,7 @@ echo '
 // Add the Content License link to the options page listing
 function cc_addAdminPage() {
 	if (function_exists('add_options_page')) {
-		add_options_page('Content License', '<img src="'.get_bloginfo('wpurl').'/wp-content/plugins/wpLicense/cc_admin.png" style="padding-right: 3px; position: relative; top: 2px;">Content License', 5, basename(__FILE__), 'license_options');
+		add_options_page('Content License', '<img src="'.get_bloginfo('wpurl').'/wp-content/plugins/wpLicense/wpLicense/cc_admin.png" style="padding-right: 3px; position: relative; top: 2px;">Content License', 5, basename(__FILE__), 'license_options');
 		}
 } // addAdminPage
 
@@ -261,13 +261,13 @@ function license_js_header() {
   if (strpos($_SERVER['REQUEST_URI'], "wpLicense") === FALSE) return;
 
   $url = get_bloginfo("wpurl");
-  $scripts = array('/wp-content/plugins/wpLicense/prototype.js',
-              '/wp-content/plugins/wpLicense/effects.js',
-              '/wp-content/plugins/wpLicense/dragdrop.js',
-              '/wp-content/plugins/wpLicense/controls.js',
-              '/wp-content/plugins/wpLicense/behaviour.js',
-              '/wp-content/plugins/wpLicense/tw-sack.js',
-              '/wp-content/plugins/wpLicense/admin.js',
+  $scripts = array('/wp-content/plugins/wpLicense/wpLicense/prototype.js',
+              '/wp-content/plugins/wpLicense/wpLicense/effects.js',
+              '/wp-content/plugins/wpLicense/wpLicense/dragdrop.js',
+              '/wp-content/plugins/wpLicense/wpLicense/controls.js',
+              '/wp-content/plugins/wpLicense/wpLicense/behaviour.js',
+              '/wp-content/plugins/wpLicense/wpLicense/tw-sack.js',
+              '/wp-content/plugins/wpLicense/wpLicense/admin.js',
              );
 
   foreach ($scripts as $script) {

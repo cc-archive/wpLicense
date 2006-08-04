@@ -38,7 +38,7 @@ function retrieveQuestions() {
 
   showWorking();
 
-  blog_url = getBlogUrl() + '/wp-content/plugins/wpLicense/admin.php';
+  blog_url = getBlogUrl() + '/wp-content/plugins/wpLicense/wpLicense/admin.php';
 
   ajax = new sack(blog_url);
   ajax.element='license_options';
@@ -71,7 +71,7 @@ function updateLicense() {
   answers = answers.join();
 
   // call the server side license issue function
-  blog_url = getBlogUrl() + '/wp-content/plugins/wpLicense/admin.php';
+  blog_url = getBlogUrl() + '/wp-content/plugins/wpLicense/wpLicense/admin.php';
 
   ajax = new sack(blog_url);
   ajax.onCompletion = function() {hideWorking(); 
