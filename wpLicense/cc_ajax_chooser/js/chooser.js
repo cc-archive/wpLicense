@@ -1,6 +1,55 @@
-function getBlogUrl() {
-   return document.getElementById('blog_url').value;
-} // getBlogUrl
+// $Id: client.js 2769 2006-01-05 19:25:05Z nyergler $
+// $Date: 2006-01-05 14:25:05 -0500 (Thu, 05 Jan 2006) $
+//
+// client-side functions for the CC AJAX license chooser.
+//
+// copyright 2005, Nathan R. Yergler, Creative Commons
+// licensed under the MIT License.
+// see docs/LICENSE for more information.
+
+// WS_ROOT_URL should point to the location of ws_proxy.php on your server
+// For example:
+// WS_ROOT_URL = 'http://yergler.net/cc_ajax/wx_proxy.php'; 
+//
+// Note that due to browser security restrictions, this *must* be in the same
+// domain your license chooser is served from.
+
+WS_ROOT_URL = 'http://localhost/cc_ajax/ws_proxy.php'; 
+
+// retrieve the list of license classes from the web service 
+// and populate the license class drop-down
+function loadClasses() {
+    ajax = new sack(WS_ROOT_URL);
+
+    function updateUi() {
+	// get a handle to the <select> tag
+	var select = document.getElementById('licenseClass');
+
+	// create a parser and parse the result
+	xdoc = new DOMParser().parseFromString(ajax.response, 'text/xml');
+
+	xp_result = xdoc.evaluate('//license', xdoc, null, 0, null);
+	var r_node;
+
+	while ((r_node = xp_result.iterateNext())) {
+	    // construct a new <option> element
+	    var option = document.createElement('option');
+	    option.setAttribute('value', r_node.getAttribute('id'));
+	    
+	    option.appendChild(
+		     document.createTextNode(r_node.firstChild.nodeValue));
+
+	    select.appendChild(option);
+	} // while more results...
+
+    } // updateUi
+
+  ajax.element='';
+  ajax.onCompletion = updateUi;
+  ajax.runAJAX();
+
+} // loadClasses
+
 
 function showSelector(event) {
    // clear the questions div, just in case
@@ -26,11 +75,12 @@ function cancelChanges() {
 
 function showWorking() {
    document.getElementById('working').style.display="block";
-
+   document.getElementById('choose').disabled = true;
 } // showWorking
 
 function hideWorking() {
    document.getElementById('working').style.display="none";
+   document.getElementById('choose').disabled = false;
 }
 
 function retrieveQuestions() {
@@ -38,13 +88,11 @@ function retrieveQuestions() {
 
   showWorking();
 
-  blog_url = getBlogUrl() + '/wp-content/plugins/wpLicense/wpLicense/admin.php';
-
-  ajax = new sack(blog_url);
+  ajax = new sack(WS_ROOT_URL);
   ajax.element='license_options';
   ajax.setVar('func', 'questions');
   ajax.setVar('class', cmbLC.value);
-
+  // ajax.onCompletion=function() {alert (ajax.response);}
   ajax.runAJAX();
 
   setTimeout('updateLicense()', 2000);
@@ -71,15 +119,13 @@ function updateLicense() {
   answers = answers.join();
 
   // call the server side license issue function
-  blog_url = getBlogUrl() + '/wp-content/plugins/wpLicense/wpLicense/admin.php';
-
-  ajax = new sack(blog_url);
+  ajax = new sack(WS_ROOT_URL);
   ajax.onCompletion = function() {hideWorking(); 
                                   updateLicense_cb(ajax.response); };
   ajax.setVar('func', 'issue');
   ajax.setVar('class', document.getElementById("licenseClass").value);
   ajax.setVar('answers', answers);
-
+  
   ajax.runAJAX();
 
 } // updateLicense
@@ -111,20 +157,6 @@ function updateLicense_cb(result) {
 
 /* Register Javascript Rules */
 var adminRules = {
-	'#showLicenseChooser' : function(el){
-		el.onclick = function(event){
-                        showSelector(event);
-		} // onclick
-	}, // showLicenseChooser
-	'#removeLicense' : function(el){
-             el.onclick = function(){
-                msg = 'This will remove your current license selection; are you sure?';
-                if (confirm(msg)) {
-                   document.license_options.remove_license.value = '__remove';
-                   document.license_options.submit();
-                } 
-             } // onclick
-	}, // removeLicense
         '#licenseClass' : function (el) {
              el.onchange = function() {
                 retrieveQuestions();
