@@ -104,17 +104,15 @@ function issueLicense($lic_class, $answers) {
       $answers['jurisdiction'] = '-';
    } 
 
-   // assemble the answers XML fragment
-   $answers_xml = "<answers><license-" . $lic_class . ">";
+   // assemble the license-get answers URL
+   $answers_url = "";
 
    foreach ($answers as $field_id=>$value) {
-      $answers_xml .= "<" . $field_id . ">" . $value . "</" . $field_id . ">";
+      $answers_url .= $field_id . "=" .$value . "&"; 
    } // for each answer
 
-   $answers_xml .= "</license-" . $lic_class . "></answers>";
-
    // make the web service request
-   $uri = $WS_ROOT."license/" . $lic_class . "/issue?answers=" . urlencode($answers_xml);
+   $uri = $WS_ROOT."license/" . $lic_class . "/get?" . $answers_url;
    $xml = file_get_contents($uri);
 
    // extract the license information

@@ -92,7 +92,7 @@ function retrieveQuestions() {
   ajax.element='license_options';
   ajax.setVar('func', 'questions');
   ajax.setVar('class', cmbLC.value);
-  // ajax.onCompletion=function() {alert (ajax.response);}
+
   ajax.runAJAX();
 
   setTimeout('updateLicense()', 2000);

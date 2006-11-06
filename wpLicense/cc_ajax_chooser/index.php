@@ -34,7 +34,7 @@ img {
 
   <body>
 
-<?php licenseChooser($action='choose.php', $prefix=''); ?>
+<?php licenseChooser($action='choose.php', $base='.'); ?>
 
   </body>
 </html>
