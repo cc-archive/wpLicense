@@ -22,10 +22,9 @@ require_once(dirname(__FILE__).'/ws_client.php');
 function scriptHeader($base='.') {
 
 printf ('
-    <script type="text/javascript" src="%s/js/behaviour.js"> </script>
-    <script type="text/javascript" src="%s/js/tw-sack.js"> </script>
+    <script type="text/javascript" src="%s/js/jquery-latest.pack.js"> </script>
     <script type="text/javascript" src="%s/js/chooser.js"> </script>
-', $base, $base, $base);
+', $base, $base, $base, $base);
 
 } // scriptHeader
 

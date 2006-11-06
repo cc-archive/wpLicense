@@ -19,84 +19,83 @@ WS_ROOT_URL = 'http://localhost/cc_ajax/ws_proxy.php';
 // retrieve the list of license classes from the web service 
 // and populate the license class drop-down
 function loadClasses() {
-    ajax = new sack(WS_ROOT_URL);
 
-    function updateUi() {
+    function updateUi(responseData) {
 	// get a handle to the <select> tag
-	var select = document.getElementById('licenseClass');
+	var select = $("#licenseClass");
+	select.empty();
 
-	// create a parser and parse the result
-	xdoc = new DOMParser().parseFromString(ajax.response, 'text/xml');
+	// iterate over the license classes
+	$("//license", responseData).each( function() {
 
-	xp_result = xdoc.evaluate('//license', xdoc, null, 0, null);
-	var r_node;
+		var option = $("<option>" + this.text() + "</option>");
+		option.id(this.id());
 
-	while ((r_node = xp_result.iterateNext())) {
-	    // construct a new <option> element
-	    var option = document.createElement('option');
-	    option.setAttribute('value', r_node.getAttribute('id'));
-	    
-	    option.appendChild(
-		     document.createTextNode(r_node.firstChild.nodeValue));
+		select.append(option);
 
-	    select.appendChild(option);
-	} // while more results...
+	});	
 
     } // updateUi
 
-  ajax.element='';
-  ajax.onCompletion = updateUi;
-  ajax.runAJAX();
+    $.ajax({
+	url: WS_ROOT_URL,
+	type: "GET",
+	dataType: "xml",
+	success: updateUi,
+	});
 
 } // loadClasses
 
 
 function showSelector(event) {
    // clear the questions div, just in case
-   document.getElementById('license_options').innerHTML = '';
+   $("#license_options").empty();
 
    // show the license class selector
-   document.getElementById('licenseSelector').style.display="block";
-   event.cancelBubble = true;
+   $("#licenseSelector").css("display", "block");
 
    return true;
 } // showSelector
 
 function cancelChanges() {
-   // new Effect.Fade('licenseSelector');
-   document.getElementById('licenseSelector').style.display="none";
 
-   document.getElementById('working').style.display="none";
-   document.getElementById('newlicense_name').innerHTML = "";
+   // hide the selector
+   $("#licenseSelector").css("display", "none");
+   $("#working").css("display", "none");
+   $("#newlicense_name").empty();
 
    document.license_options.reset();
-   return 1;
+
+   return true;
 } // cancelChanges
 
 function showWorking() {
-   document.getElementById('working').style.display="block";
-   document.getElementById('choose').disabled = true;
+
+   $("#working").css("display", "block");
+   $("#choose").attr("disabled", "true");
+
 } // showWorking
 
 function hideWorking() {
-   document.getElementById('working').style.display="none";
-   document.getElementById('choose').disabled = false;
+
+   $("#working").css("display", "none");
+   $("#choose").attr("disabled", "false");
 }
 
 function retrieveQuestions() {
-  cmbLC = document.getElementById("licenseClass");
 
+  license_class = $("#licenseClass").val();
   showWorking();
 
-  ajax = new sack(WS_ROOT_URL);
-  ajax.element='license_options';
-  ajax.setVar('func', 'questions');
-  ajax.setVar('class', cmbLC.value);
+  $("#license_options").load(WS_ROOT_URL,
+	{func:'questions',
+	 class:license_class},
+	function() {
+	   updateLicense();
+	   updateBindings();
+	}
+   );
 
-  ajax.runAJAX();
-
-  setTimeout('updateLicense()', 2000);
-  setTimeout('Behaviour.apply()', 3000);
 } // retrieveQuestions
 
 function updateLicense() {
@@ -117,20 +116,23 @@ function updateLicense() {
   } // for each child node
 
   answers = answers.join();
+  license_class = $("#licenseClass").val();
 
   // call the server side license issue function
-  ajax = new sack(WS_ROOT_URL);
-  ajax.onCompletion = function() {hideWorking(); 
-                                  updateLicense_cb(ajax.response); };
-  ajax.setVar('func', 'issue');
-  ajax.setVar('class', document.getElementById("licenseClass").value);
-  ajax.setVar('answers', answers);
-  
-  ajax.runAJAX();
+  $.ajax({
+	url: WS_ROOT_URL,
+	type: "POST",
+	data: "func=issue&class=" + license_class + "&answers=" + answers,
+	success: function(result) {
+			hideWorking();
+			updateLicense_cb(result);
+		 }
+	});
 
 } // updateLicense
 
 function updateLicense_cb(result) {
+
    // explode the returned string back into an array
    var licenseInfo = new Array();
    pairs = result.split(';');
@@ -150,34 +152,19 @@ function updateLicense_cb(result) {
 
    // construct and assign the html link
    href_text = '<a href="' + licenseInfo['uri'] + '">' + licenseInfo['name'] + '</a>';
-   document.getElementById("newlicense_name").innerHTML = href_text;
+
+   $("#newlicense_name").empty().append($(href_text));
 
 } // updateLicense_cb
 
 
-/* Register Javascript Rules */
-var adminRules = {
-        '#licenseClass' : function (el) {
-             el.onchange = function() {
-                retrieveQuestions();
-             } // onchange
-        }, // licenseClass
-        '#cancel' : function (el) {
-             el.onclick = function() {
-                cancelChanges();
-             } // onclick
-        }, // #cancel
-        '#license_options select' : function (el) {
-             el.onchange = function() {
-                updateLicense();
-             } // onchange
-        }, // #lic_questions select
-        'select.lic_q' : function (el) {
-             el.onchange = function() {
-                updateLicense();
-             } // onchange
-        }, // #lic_questions select
-     };
+function updateBindings() {
 
-Behaviour.register(adminRules);
+   $("#licenseClass").change(retrieveQuestions);
+   $("#cancel").click(cancelChanges);
+   $("#license_options > select").change(updateLicense);
+   $("select[@lic_q]").change(updateLicense);
 
+}
+
+$(document).ready(updateBindings);
