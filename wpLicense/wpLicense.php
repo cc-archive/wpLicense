@@ -3,7 +3,7 @@
 Plugin Name: wpLicense
 Plugin URI: http://wiki.creativecommons.org/WpLicense
 Description: Allows selection of a <a href="http://creativecommons.org">Creative Commons</a> license for blog content.
-Version: 0.7.5
+Version: 0.8-rc1
 Author: Nathan R. Yergler <nathan@creativecommons.org>
 Author URI: http://wiki.creativecommons.org/User:NathanYergler
 */
@@ -27,7 +27,8 @@ Author URI: http://wiki.creativecommons.org/User:NathanYergler
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-require(dirname(__FILE__) . '/wpLicense/ccwsclient.php');
+require(dirname(__FILE__) . '/cc_ajax_chooser/ws_client.php');
+require(dirname(__FILE__) . '/cc_ajax_chooser/html_ui.php');
 
 /* Template Functions */
 
@@ -135,33 +136,12 @@ way, or in a custom location, you may do so using
 functions provided by the plugin
 <a href="http://wiki.creativecommons.org/WpLicense_Function_Reference"
    target="_blank">
-(function reference)</a>.</p>
+(function reference)</a>.</p>';
 
-         <div id="license_selection" class="wrap">
-            <form name="license_options" method="post" 
-                  action="' . $_SERVER[REQUEST_URI] . '">
-
-            <input name="submitted"    type="hidden" value="wplicense" />
-            <input name="license_name" type="hidden" 
-                   value="'.get_option('cc_content_license').'" />
-            <input name="license_uri"  type="hidden"  
-                   value="'.get_option('cc_content_license_uri').'" />
-            <input name="license_rdf"  type="hidden"  
-                   value="" />
-            <input name="license_html" type="hidden"  
-                   value="" />
-            <input name="blog_url" id="blog_url" type="hidden"  
-                   value="'.get_bloginfo('wpurl').'" />
-            <input name="remove_license" type="hidden"  
-                   value="false" />
-
-
-            <table>
-               <tr><th>Current License:</th><td>
-         <a href="'.get_option('cc_content_license_uri').'">'.get_option('cc_content_license').'</a>';
-
+// check if fopen is enabled
 if (!fopenEnabled ()) {
 
+	// it's not, show the partner link
 $partner_href = "http://creativecommons.org/license/?partner=wplicense&jurisdiction_choose=1&exit_url=" . ($_SERVER['HTTPS']?"https://":"http://")  . $_SERVER['SERVER_NAME'] .":" . $_SERVER['SERVER_PORT'] . $_SERVER['SCRIPT_NAME'] . "?page=wpLicense.php%26submitted=from_partner%26license_uri=[license_url]%26license_name=[license_name]%26license_image=[license_button]";
 
 echo '
@@ -178,51 +158,22 @@ echo '
 
 } else {
 
-echo '
-         (<a id="showLicenseChooser" href="#">'.(get_option('cc_content_license')?'change':'select').'</a>)
-         (<a id="removeLicense" href="#">remove</a>)
+echo '<form name="license_options" method="post" 
+                  action="' . $_SERVER[REQUEST_URI] . '">';
 
-               </td></tr>
+$defaults = array("license_name" => get_option('cc_content_license'),
+	     	  "license_uri"  => get_option('cc_content_license_uri'),
+	    );
 
-               <tr><th>&nbsp;</th><td>
+$base = get_bloginfo("wpurl")."/wp-content/plugins/wpLicense/cc_ajax_chooser";
 
-<div id="licenseSelector" name="licenseSelector"
-     class="wrap" style="display:none;">
-<table>
-               <tr><th><nobr>Selected&nbsp;License:</nobr></th>
-                   <td id="newlicense_name">(none)</td>
-               <td>
-               <img id="working" 
-                    src="'.get_bloginfo('wpurl').'/wp-content/plugins/wpLicense/wpLicense/Throbber-small.gif" 
-                    style="display:none; float:right; margin:0px;padding;0px;"/>
-                   </td>
-               </tr>
-               <tr><th><nobr>License type:</nobr></th>
-                 <td colspan="2">
-             <select id="licenseClass">
-                          <option id="-">(none)</option>
-';
-    $license_classes = licenseClasses();
+licenseChooser($base, $defaults);
 
-    foreach($license_classes as $key => $l_id) {
-          echo '<option value="' . $key . '" >' . $l_id . '</option>';
-    }; // for each...
-
-  echo '          </select>
-</td></tr>
-<tr><td>&nbsp;</td>
-<td colspan="2">
-         <div id="license_options" class="wrap">
-         </div>
-</td></tr>
-</table>
-</div>
-
-                 </td></tr>
-
-<!--             <tr><th>Include per-post license information?</th>
-                 <td><input type="checkbox" name="perPost" '.(get_option('cc_per_post')=='1'?"checked":"").'" ></td> 
-             </tr> -->
+echo '<input name="blog_url" id="blog_url" type="hidden"  
+                   value="'.get_bloginfo('wpurl').'" />
+            <input name="remove_license" type="hidden"  
+                   value="false" />
+	<input name="submitted" type="hidden" value="wplicense" />
 ';
 }
 
@@ -250,7 +201,7 @@ echo '
 // Add the Content License link to the options page listing
 function cc_addAdminPage() {
 	if (function_exists('add_options_page')) {
-		add_options_page('Content License', '<img src="'.get_bloginfo('wpurl').'/wp-content/plugins/wpLicense/wpLicense/cc_admin.png" style="padding-right: 3px; position: relative; top: 2px;">Content License', 5, basename(__FILE__), 'license_options');
+		add_options_page('Content License', '<img src="'.get_bloginfo('wpurl').'/wp-content/plugins/wpLicense/images/cc_admin.png" style="padding-right: 3px; position: relative; top: 2px;">Content License', 5, basename(__FILE__), 'license_options');
 		}
 } // addAdminPage
 
@@ -260,19 +211,10 @@ function license_js_header() {
 
   if (strpos($_SERVER['REQUEST_URI'], "wpLicense") === FALSE) return;
 
-  $url = get_bloginfo("wpurl");
-  $scripts = array('/wp-content/plugins/wpLicense/wpLicense/prototype.js',
-              '/wp-content/plugins/wpLicense/wpLicense/effects.js',
-              '/wp-content/plugins/wpLicense/wpLicense/dragdrop.js',
-              '/wp-content/plugins/wpLicense/wpLicense/controls.js',
-              '/wp-content/plugins/wpLicense/wpLicense/behaviour.js',
-              '/wp-content/plugins/wpLicense/wpLicense/tw-sack.js',
-              '/wp-content/plugins/wpLicense/wpLicense/admin.js',
-             );
-
-  foreach ($scripts as $script) {
-    echo '<script type="text/javascript" src="'.$url.$script.'"> </script>';
-  }
+  $base = get_bloginfo("wpurl");
+  $base .= "/wp-content/plugins/wpLicense/cc_ajax_chooser";
+  
+  scriptHeader($base);
 
 } // license_js_header
 
@@ -384,7 +326,7 @@ add_action('rss2_head', 'cc_rss2_head');
 add_action('atom_head', 'cc_atom_head');
 
 // widget support
-require(dirname(__FILE__) . '/wpLicense/widget.php');
+require(dirname(__FILE__) . '/widget.php');
 
 
 ?>

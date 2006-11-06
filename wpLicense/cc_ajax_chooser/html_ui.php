@@ -29,23 +29,30 @@ printf ('
 } // scriptHeader
 
 // *************************************************************************
-// licenseChooser($action, $base='.')
+// licenseChooser($base='.')
 //
 // Renders an HTML license choser.  $action specifies the form action to take
 // and $base specified the base portion of the URL.
 //
 // XXX For example, if the files are served at...
 
-function licenseChooser($action='choose.php', $base='.') {
+function licenseChooser($base='.', $defaults=array()) {
+
+// set up a link (or just simple text if nothing) for current license
+if ($defaults["license_uri"]) {
+   $current_license = '<a href="' . $defaults["license_uri"] . '">';
+   $current_license .= $defaults["license_name"] . '</a>';
+} else {
+   $current_license = "(none)";
+}
 
 printf ('
          <div id="license_selection" class="wrap">
-            <form name="license_options" method="post" action="%s">
 
             <input name="license_name" type="hidden" 
-                   value="" />
+                   value="%s" />
             <input name="license_uri"  type="hidden"  
-                   value="" />
+                   value="%s" />
             <input name="license_rdf"  type="hidden"  
                    value="" />
             <input name="license_html" type="hidden"  
@@ -54,7 +61,7 @@ printf ('
 <div id="licenseSelector" name="licenseSelector" class="wrap">
 <table>
                <tr><th><nobr>Selected&nbsp;License:</nobr></th>
-                   <td id="newlicense_name">(none)</td>
+                   <td id="newlicense_name">%s</td>
                <td>
                <img id="working" 
                     src="%s/images/Throbber-small.gif" 
@@ -65,7 +72,7 @@ printf ('
                  <td colspan="2">
              <select id="licenseClass">
                           <option id="-">(none)</option>',
-$action, $base);
+$defaults["license_name"], $defaults["license_uri"], $current_license, $base);
 
     $license_classes = licenseClasses();
     echo $license_classes;
@@ -81,7 +88,6 @@ echo '
          <div id="license_options" class="wrap">
          </div>
 </td></tr>
-<tr><td colspan="2"><input id="choose" type="submit" value="Choose!"/></td></tr>
 </table>
 </div>
 ';
