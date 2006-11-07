@@ -1,8 +1,34 @@
 <?php
 
+/*
+ *  $Id: ccwsclient.php 2769 2006-01-05 19:25:05Z nyergler $
+ *  $Date: 2006-01-06 05:25:05 +1000 (Fri, 06 Jan 2006) $
+ *  copyright 2005-2006, Nathan R. Yergler, Creative Commons
+ *  proxy code contribued by Jonathan Guerin
+ *  
+ *  Licensed under the MIT License
+ *  see docs/LICENSE for more information
+ *
+ *  Provides PHP client to the CC web services.
+ * 
+ */
+
 require_once(dirname(__FILE__).'/minixml.inc.php');
 
+/*
+ *  Web Service Client Configuration
+ *  --------------------------------
+ *  
+ *  $WS_ROOT defines the web service root; 
+ *           see http://api.creativecommons.org for details
+ *  $PROXY   defines the proxy to use when making web service requests;
+ *           without the "http://".  For example, "proxy:8080";
+ *  $USE_PROXY set to true to enable proxying
+ */
+
 $WS_ROOT = "http://api.creativecommons.org/rest/1.5/";
+$PROXY = "proxy:8080"; 
+$USE_PROXY = false; 
 
 function fopenEnabled() {
 
@@ -22,7 +48,7 @@ function retrieveFile($path) {
    global $WS_ROOT;
 
    // try to retrieve the information from the CC web services
-   $result = file_get_contents($WS_ROOT.$path);
+   $result = file_get_contents_proxy($WS_ROOT.$path);
   
    if (!($result === FALSE)) {
       return $result;
@@ -113,7 +139,7 @@ function issueLicense($lic_class, $answers) {
 
    // make the web service request
    $uri = $WS_ROOT."license/" . $lic_class . "/get?" . $answers_url;
-   $xml = file_get_contents($uri);
+   $xml = file_get_contents_proxy($uri);
 
    // extract the license information
    $xmlDoc = new MiniXMLDoc();
@@ -137,4 +163,25 @@ function issueLicense($lic_class, $answers) {
 
    return $result;
 } // issueLicense
+
+function file_get_contents_proxy($uri)
+{
+    global $PROXY;
+    global $USE_PROXY;
+	
+    if ($USE_PROXY) {
+        // proxy enabled
+        $context = stream_context_create(
+	    array('http'=> 
+                array('request_fulluri' => true, 'proxy'=>"tcp://$PROXY")
+	    ));
+	
+        return file_get_contents($uri, false, $context);
+    } else {
+	// proxy disabled, fall back to normal retrieval
+        return file_get_contents($uri);
+    }
+
+} // file_get_contents_proxy
+
 ?>
