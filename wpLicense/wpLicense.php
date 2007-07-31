@@ -36,8 +36,10 @@ function licenseHtml($display=1) {
    $license_name = get_option('cc_content_license');
 
    $result = <<< END_OF_STMT
+<div class="wp_license" style="text-align:center;">
 <a href="${license_uri}"><img src="${license_img}" alt="${license_name}"/><br/>
 ${license_name}</a>
+</div>
 END_OF_STMT;
 
    if ($display == 1) {
