@@ -29,20 +29,21 @@ Author URI: http://wiki.creativecommons.org/User:NathanYergler
 
 /* Template Functions */
 
-function licenseRdf($display=1) {
-   if ($display == 1) {
-      echo get_option('cc_content_license_rdf');
-   } else {
-      return get_option('cc_content_license_rdf');
-   }
-
-} // licenseRdf
-
 function licenseHtml($display=1) {
+
+   $license_uri = get_option('cc_content_license_uri');
+   $license_img = get_option('cc_content_license_img');
+   $license_name = get_option('cc_content_license');
+
+   $result = <<< END_OF_STMT
+<a href="${license_uri}"><img src="${license_img}" alt="${license_name}"/><br/>
+${license_name}</a>
+END_OF_STMT;
+
    if ($display == 1) {
-      echo str_replace('\"', '"', get_option('cc_content_license_html'));
+      echo $result;
    } else {
-      return str_replace('\"', '"', get_option('cc_content_license_html'));
+      return $result;
    }
 
 } // licenseHtml
@@ -154,14 +155,24 @@ function cc_addAdminPage() {
 } // addAdminPage
 
 
+// Include the necessary java-script libraries 	 
+function wplicense_header() { 	 
+	  	 
+   if (strpos($_SERVER['REQUEST_URI'], "wpLicense") === FALSE) return; 	 
+	  	 
+   $css_url = get_bloginfo("wpurl") . "/wp-content/plugins/wpLicense/wplicense.css"; 	 
+	  	
+   echo "<link rel=\"stylesheet\" href=\"${css_url}\" />";
+} // wplicense_header
+
+
 // Initialize the WordPress content variables
 function init_content_license($reset=false) {
 
   // call non-destructive add for each option
   add_option('cc_content_license', '');
   add_option('cc_content_license_uri', '');
-  add_option('cc_content_license_rdf', '');
-  add_option('cc_content_license_html', '');
+  add_option('cc_content_license_img', '');
 
   add_option('cc_copyright_holder', '');
   add_option('cc_creator', '');
@@ -174,8 +185,7 @@ function init_content_license($reset=false) {
   if ($reset == true) {
      update_option('cc_content_license', '');
      update_option('cc_content_license_uri', '');
-     update_option('cc_content_license_rdf', '');
-     update_option('cc_content_license_html', '');
+     update_option('cc_content_license_img', '');
 
      update_option('cc_copyright_holder', '');
      update_option('cc_creator', '');
@@ -206,9 +216,8 @@ function post_form() {
            // store the new license information
            update_option('cc_content_license', $_POST['cc_js_result_name']);
            update_option('cc_content_license_uri', $_POST['cc_js_result_uri']);
+           update_option('cc_content_license_img', $_POST['cc_js_result_img']);
 
-           // update_option('cc_content_license_rdf', $_POST['license_rdf']);
-           // update_option('cc_content_license_html', $_POST['license_html']);
         }
 
         // store the settings
@@ -227,6 +236,7 @@ function post_form() {
 
 /* admin interface action registration */
 add_action('admin_menu', 'cc_addAdminPage');
+add_action('admin_head', 'wplicense_header');
 add_action('admin_head', 'post_form');
 
 /* content action/filter registration */
