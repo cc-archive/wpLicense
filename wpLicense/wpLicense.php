@@ -3,7 +3,7 @@
 Plugin Name: wpLicense
 Plugin URI: http://wiki.creativecommons.org/WpLicense
 Description: Allows selection of a <a href="http://creativecommons.org">Creative Commons</a> license for blog content.
-Version: 0.9-rc1
+Version: 0.9-rc2
 Author: Nathan R. Yergler <nathan@creativecommons.org>
 Author URI: http://wiki.creativecommons.org/User:NathanYergler
 */
