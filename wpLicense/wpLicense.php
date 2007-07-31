@@ -3,12 +3,12 @@
 Plugin Name: wpLicense
 Plugin URI: http://wiki.creativecommons.org/WpLicense
 Description: Allows selection of a <a href="http://creativecommons.org">Creative Commons</a> license for blog content.
-Version: 0.8-rc1
+Version: 0.9-rc1
 Author: Nathan R. Yergler <nathan@creativecommons.org>
 Author URI: http://wiki.creativecommons.org/User:NathanYergler
 */
 
-/*  Copyright 2005-2006,
+/*  Copyright 2005-2007,
     Creative Commons (email : software@creativecommons.org), 
     Nathan R. Yergler (email : nathan@creativecommons.org)
 
@@ -26,9 +26,6 @@ Author URI: http://wiki.creativecommons.org/User:NathanYergler
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
-require(dirname(__FILE__) . '/cc_ajax_chooser/ws_client.php');
-require(dirname(__FILE__) . '/cc_ajax_chooser/html_ui.php');
 
 /* Template Functions */
 
@@ -87,101 +84,50 @@ function cc_atom_head() {
 
 } // cc_atom_head
 
-/* Support functions */
-
-function supportedPHP() {
-
-  if (function_exists('version_compare')) {
-     if (version_compare(phpversion(), "4.3.0", ">=")) {
-        // you're on 4.3.0 or later
-        return TRUE;
-     } else {
-        // you're not
-        return FALSE;
-     }
-  } else {
-     // we're running a version prior to 4.1.0, by definition unsupported
-     return FALSE;
-  }
-
-} // supportedPHP
 
 
 /* Admin functions */
 
 function license_options() {
    global $post_msg;
-echo '
+
+$defaults = array("license_name" => get_option('cc_content_license'),
+	     	  "license_uri"  => get_option('cc_content_license_uri'),
+	    );
+$wp_url = get_bloginfo('wpurl');
+$license_url = get_option('cc_content_license_uri');
+$include_footer = get_option('cc_include_footer')=='1'?"checked":"";
+
+echo <<< END_OF_ADMIN
 <div class="wrap">
-         <div id="statusmsg">'.$post_msg.'</div>
+         <div id="statusmsg">${post_msg}</div>
          <h2>Content License</h2>
 <p>This page allows you to choose a 
 <a href="http://creativecommons.org">Creative Commons</a> license 
 for your content.  If you select "Include License Badge", the default
 Creative Commons badge, link and RDF will be included in the standard footer.
-</p>';
+</p>
 
-// make sure we're running on a support PHP configuration
-if (supportedPHP() === FALSE) {
-   echo '<p style="color:red;"><strong>wpLicense requires PHP 4.3.0 or later; 
-        you seem to be running version ' . phpversion() . '.</strong></p>';
-
-   // close the div
-   echo '</div>';
-   return;
-}
-
-echo '<p>If you wish to display the license information in a non-standard 
+<p>If you wish to display the license information in a non-standard 
 way, or in a custom location, you may do so using 
 functions provided by the plugin
 <a href="http://wiki.creativecommons.org/WpLicense_Function_Reference"
    target="_blank">
-(function reference)</a>.</p>';
+(function reference)</a>.</p>
 
-// check if fopen is enabled
-if (!fopenEnabled ()) {
+<form name="license_options" method="post" action="${_SERVER[REQUEST_URI]}">
 
-	// it's not, show the partner link
-$partner_href = "http://creativecommons.org/license/?partner=wplicense&jurisdiction_choose=1&exit_url=" . ($_SERVER['HTTPS']?"https://":"http://")  . $_SERVER['SERVER_NAME'] .":" . $_SERVER['SERVER_PORT'] . $_SERVER['SCRIPT_NAME'] . "?page=wpLicense.php%26submitted=from_partner%26license_uri=[license_url]%26license_name=[license_name]%26license_image=[license_button]";
+<script src="http://api.creativecommons.org/jswidget/trunk/complete.js">
+</script>
 
-echo '
-         (<a id="partnerChooser" href="'.$partner_href.'">'.(get_option('cc_content_license')?'change':'select').'</a>)
-         (<a id="removeLicense" href="#">remove</a>)
-
-</td></tr>
-<tr><td>&nbsp;</td>
-<td><em>Your webhost has disabled remote url access via PHP.</em>
-<p>
-  You can still select a license, but you will be temporarily redirected from the WordPress administrative interface to complete the process.  No personal information will be passed to Creative Commons.</p></td>
-</tr>
-';
-
-} else {
-
-echo '<form name="license_options" method="post" 
-                  action="' . $_SERVER[REQUEST_URI] . '">';
-
-$defaults = array("license_name" => get_option('cc_content_license'),
-	     	  "license_uri"  => get_option('cc_content_license_uri'),
-	    );
-
-$base = get_bloginfo("wpurl")."/wp-content/plugins/wpLicense/cc_ajax_chooser";
-
-licenseChooser($base, $defaults);
-
-echo '<input name="blog_url" id="blog_url" type="hidden"  
-                   value="'.get_bloginfo('wpurl').'" />
-            <input name="remove_license" type="hidden"  
-                   value="false" />
-	<input name="submitted" type="hidden" value="wplicense" />
-';
-}
-
-echo '
+<input id="cc_js_seed_uri" type="hidden" value="${license_url}" />
+<input name="blog_url" id="blog_url" type="hidden" value="${wp_url}" />
+<input name="remove_license" type="hidden" value="false" />
+<input name="submitted" type="hidden" value="wplicense" />
 
               <tr><td colspan="2">&nbsp;</td></tr>
               <tr><th>Include license badge in default footer?</th>
-                  <td><input type="checkbox" name="includeFooter" '.(get_option('cc_include_footer')=='1'?"checked":"").'" ></td> 
+                  <td><input type="checkbox" name="includeFooter" ${include_footer}" ></td> 
              </tr> 
                
                <tr><th>&nbsp;</th>
@@ -195,7 +141,9 @@ echo '
          </div>
 
       </div>
-      ';
+
+END_OF_ADMIN;
+
 } // license_options
 
 // Add the Content License link to the options page listing
@@ -205,18 +153,6 @@ function cc_addAdminPage() {
 		}
 } // addAdminPage
 
-
-// Include the necessary java-script libraries
-function license_js_header() {
-
-  if (strpos($_SERVER['REQUEST_URI'], "wpLicense") === FALSE) return;
-
-  $base = get_bloginfo("wpurl");
-  $base .= "/wp-content/plugins/wpLicense/cc_ajax_chooser";
-  
-  scriptHeader($base);
-
-} // license_js_header
 
 // Initialize the WordPress content variables
 function init_content_license($reset=false) {
@@ -266,21 +202,17 @@ function post_form() {
         } // remove license
 
         // check if the license was changed
-	if ($_POST['license_uri'] != get_option('cc_content_license_uri')) {
+	if ($_POST['cc_js_result_uri'] != get_option('cc_content_license_uri')) {
            // store the new license information
-           update_option('cc_content_license', $_POST['license_name']);
-           update_option('cc_content_license_uri', $_POST['license_uri']);
-           update_option('cc_content_license_rdf', $_POST['license_rdf']);
-           update_option('cc_content_license_html', $_POST['license_html']);
+           update_option('cc_content_license', $_POST['cc_js_result_name']);
+           update_option('cc_content_license_uri', $_POST['cc_js_result_uri']);
+
+           // update_option('cc_content_license_rdf', $_POST['license_rdf']);
+           // update_option('cc_content_license_html', $_POST['license_html']);
         }
 
         // store the settings
 
-        if (isset($_POST['perPost'])) {
-           update_option('cc_per_post', '1');
-        } else {
-           update_option('cc_per_post', '0');
-        }
         if (isset($_POST['includeFooter'])) {
            update_option('cc_include_footer', '1');
         } else {
@@ -290,29 +222,11 @@ function post_form() {
         $post_msg = "<h3>License information updated.</h3>";
     } // standard web services post 
 
-    // check for return from partner interface
-    if ( (isset($_GET['submitted'])) && ($_GET['submitted'] == 'from_partner')){
-
-	if ($_GET['license_uri'] != get_option('cc_content_license_uri')) {
-
-	   // construct the HTML block
-	   $html='<a rel="license" href="' . $_GET['license_uri'] . '"><img alt="Creative Commons License" border="0" src="' .$_GET['license_image'] . '"/></a><br/>This work is licensed under a <a rel="license" href="' .$_GET['license_uri'] . '">Creative Commons ' .$_GET['license_name'] . ' License</a>.';
-
-           // store the new license information
-           update_option('cc_content_license', $_GET['license_name']);
-           update_option('cc_content_license_uri', $_GET['license_uri']);
-           update_option('cc_content_license_rdf', '');
-           update_option('cc_content_license_html', $html);
-        }
-
-        $post_msg = "<h3>License information updated.</h3>";
-    } // partner interface return
 
 } // post_form
 
 /* admin interface action registration */
 add_action('admin_menu', 'cc_addAdminPage');
-add_action('admin_head', 'license_js_header');
 add_action('admin_head', 'post_form');
 
 /* content action/filter registration */
@@ -327,6 +241,5 @@ add_action('atom_head', 'cc_atom_head');
 
 // widget support
 require(dirname(__FILE__) . '/widget.php');
-
 
 ?>
