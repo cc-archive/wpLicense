@@ -1,11 +1,16 @@
 WpLicense
 =========
 
+Tested compatible with:
+* Lyceum 0.34
+* WordPress 2.0.11
+* WordPress 2.2.2
+
 Installing
 ----------
 
  Copy the wpLicense directory into the wp-content/plugins directory in your
- WordPress installation.
+ WordPress (or Lyceum) installation.
 
  Activate the wpLicense plugin in the WordPress admin tool, and then go
  to Options -> Content License to select a license.
