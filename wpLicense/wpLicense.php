@@ -120,7 +120,7 @@ functions provided by the plugin
 
 <form name="license_options" method="post" action="${_SERVER[REQUEST_URI]}">
 
-<script src="http://api.creativecommons.org/jswidget/trunk/complete.js">
+<script src="http://api.creativecommons.org/jswidget/tags/0.9/complete.js">
 </script>
 
 <input id="cc_js_seed_uri" type="hidden" value="${license_url}" />
