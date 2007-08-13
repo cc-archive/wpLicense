@@ -1,0 +1,4 @@
+* Implement a "Do you want a CC license?" question so that the plugin
+  can be enabled globally as a Lyceum systemplugin.
+* Remove this file.
+
