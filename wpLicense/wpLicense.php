@@ -101,7 +101,7 @@ $wp_url = get_bloginfo('wpurl');
 $license_url = get_option('cc_content_license_uri');
 $include_footer = get_option('cc_include_footer')=='1'?"checked":"";
 
-if (! $license_url) { $jswidget_extra = "want_a_license=no_by_default"; }
+if (! $license_url) { $jswidget_extra = "want_a_license=no_license_by_default"; }
 else                { $jswidget_extra = ""; }
 
 echo <<< END_OF_ADMIN
