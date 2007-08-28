@@ -1,3 +1,7 @@
+Tue, 28 Aug 2007 12:21:21 -0700 Asheesh Laroia <asheesh@creativecommons.org>
+ * Updated JsWidget references to use version 0.91
+ * Handle the removing of a license as well as the addition of a license
+
 Fri Dec 30 16:34:31 EST 2005  Nathan R. Yergler <nathan@yergler.net>
   * line-ending
   No line ending at the end of the file makes Safari (and presumably Konqueror) crazy.
