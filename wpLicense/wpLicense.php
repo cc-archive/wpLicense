@@ -101,6 +101,9 @@ $wp_url = get_bloginfo('wpurl');
 $license_url = get_option('cc_content_license_uri');
 $include_footer = get_option('cc_include_footer')=='1'?"checked":"";
 
+if (! $license_url) { $jswidget_extra = "want_a_license=no_license_by_default"; }
+else                { $jswidget_extra = ""; }
+
 echo <<< END_OF_ADMIN
 <div class="wrap">
          <div id="statusmsg">${post_msg}</div>
@@ -120,7 +123,7 @@ functions provided by the plugin
 
 <form name="license_options" method="post" action="${_SERVER[REQUEST_URI]}">
 
-<script type="text/javascript" src="http://api.creativecommons.org/jswidget/tags/0.9/complete.js">
+<script type="text/javascript" src="http://api.creativecommons.org/jswidget/tags/0.91/complete.js?${jswidget_extra}">
 </script>
 
 <input id="cc_js_seed_uri" type="hidden" value="${license_url}" />
@@ -206,7 +209,8 @@ function post_form() {
     // check for standard return (using web services
     if ( (isset($_POST['submitted'])) && ($_POST['submitted'] == 'wplicense')) {
         // check if the license should be removed
-        if ($_POST['remove_license'] == '__remove') {
+        if ($_POST['remove_license'] == '__remove' || 
+           ($_POST['cc_js_result_uri'] == '' && get_option('cc_content_license_uri') != '')) {
            init_content_license(true);
 
            $post_msg = "<h3>License information removed.</h3>";
