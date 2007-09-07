@@ -29,16 +29,23 @@ Author URI: http://wiki.creativecommons.org/User:NathanYergler
 
 /* Template Functions */
 
-function licenseHtml($display=1) {
+function licenseHtml($display=1, $show_button=1) {
 
    $license_uri = get_option('cc_content_license_uri');
    $license_img = get_option('cc_content_license_img');
    $license_name = get_option('cc_content_license');
+  
+   if ($show_button) {
+     $image = <<< END_OF_STMT
+<img src="${license_img}" alt="${license_name}"/><br/>${license_name}
+END_OF_STMT;
+  } else {
+     $image = '';
+  }
 
-   $result = <<< END_OF_STMT
+  $result = <<< END_OF_STMT
 <div class="wp_license" style="text-align:center;">
-<a rel="license" href="${license_uri}"><img src="${license_img}" alt="${license_name}"/><br/>
-${license_name}</a>
+<a rel="license" href="${license_uri}">$image</a>
 </div>
 END_OF_STMT;
 
@@ -59,18 +66,10 @@ function isLicensed() {
   return get_option('cc_content_license');
 } // isLicensed
 
-function cc_showLicenseHtmlHead() {
-  if (isLicensed()) {
-    echo '<link rel="license" href="' . licenseUri() . '" />';
-  }
-} // cc_showLicenseHtmlHead
-
 function cc_showLicenseHtml() {
-  if (get_option('cc_include_footer')) {
-     if (isLicensed()) {
-        echo '<div class="license_block">'.licenseHtml(0).'</div>';
-     }
-  }
+   if (isLicensed()) {
+      echo '<div class="license_block">'.licenseHtml(0, get_option('cc_include_footer')).'</div>';
+   }
 } // cc_showLicenseHtml
 
 function cc_rss2_ns() {
@@ -261,8 +260,7 @@ add_action('admin_head', 'post_form');
 /* content action/filter registration */
 
 // show global RDF + HTML, if turned on
-add_action('wp_head', 'cc_showLicenseHtmlHead'); // always in the header
-add_action('wp_footer', 'cc_showLicenseHtml');   // and optionally in body
+add_action('wp_footer', 'cc_showLicenseHtml');
 
 // feed licensing
 add_action('rss2_ns', 'cc_rss2_ns');
