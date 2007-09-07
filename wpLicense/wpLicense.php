@@ -62,9 +62,7 @@ function isLicensed() {
 function cc_showLicenseHtmlHead() {
   if (isLicensed()) {
     $uri = licenseUri();
-    echo <<< END
-      <link rel="license" href="$uri" />
-      END;
+    echo '<link rel="license" href="' . licenseUri() . '" />';
   }
 } // cc_showLicenseHtmlHead
 
