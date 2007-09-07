@@ -59,6 +59,15 @@ function isLicensed() {
   return get_option('cc_content_license');
 } // isLicensed
 
+function cc_showLicenseHtmlHead() {
+  if (isLicensed()) {
+    $uri = licenseUri();
+    echo <<< END
+      <link rel="license" href="$uri" />
+      END;
+  }
+} // cc_showLicenseHtmlHead
+
 function cc_showLicenseHtml() {
   if (get_option('cc_include_footer')) {
      if (isLicensed()) {
@@ -248,7 +257,8 @@ add_action('admin_head', 'post_form');
 /* content action/filter registration */
 
 // show global RDF + HTML, if turned on
-add_action('wp_footer', 'cc_showLicenseHtml');
+add_action('wp_head', 'cc_showLicenseHtmlHead'); // always in the header
+add_action('wp_footer', 'cc_showLicenseHtml');   // and optionally in body
 
 // feed licensing
 add_action('rss2_ns', 'cc_rss2_ns');
