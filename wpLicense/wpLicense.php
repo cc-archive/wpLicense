@@ -37,7 +37,7 @@ function licenseHtml($display=1) {
 
    $result = <<< END_OF_STMT
 <div class="wp_license" style="text-align:center;">
-<a href="${license_uri}"><img src="${license_img}" alt="${license_name}"/><br/>
+<a rel="license" href="${license_uri}"><img src="${license_img}" alt="${license_name}"/><br/>
 ${license_name}</a>
 </div>
 END_OF_STMT;
