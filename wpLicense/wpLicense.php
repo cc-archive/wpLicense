@@ -178,7 +178,7 @@ function wplicense_header() {
 
 
 // Initialize the WordPress content variables
-function init_content_license($reset=false) {
+function init_content_license($fullreset=false, $just_license_reset=false) {
 
   // call non-destructive add for each option
   add_option('cc_content_license', '');
@@ -193,7 +193,8 @@ function init_content_license($reset=false) {
   add_option('cc_include_footer', '1');
 
   // if reset is True, destructively reset the values
-  if ($reset == true) {
+  if ($fullreset == true) {
+     echo "full reest " . $fullreset . "<P>";
      update_option('cc_content_license', '');
      update_option('cc_content_license_uri', '');
      update_option('cc_content_license_img', '');
@@ -206,6 +207,12 @@ function init_content_license($reset=false) {
      update_option('cc_include_footer', '1');
 
   } // if resetting
+
+  if ($just_license_reset) {
+    update_option('cc_content_license', '');
+    update_option('cc_content_license_uri', '');
+    update_option('cc_content_license_img', '');
+  } // if just resetting license details but not other prefs
   
 } // init_content_license
 
@@ -217,7 +224,7 @@ function post_form() {
         // check if the license should be removed
         if ($_POST['remove_license'] == '__remove' || 
            ($_POST['cc_js_result_uri'] == '' && get_option('cc_content_license_uri') != '')) {
-           init_content_license(true);
+           init_content_license(false, true);
 
            $post_msg = "<h3>License information removed.</h3>";
 	   return;
