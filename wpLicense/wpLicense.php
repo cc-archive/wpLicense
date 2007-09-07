@@ -51,7 +51,7 @@ END_OF_STMT;
 } // licenseHtml
 
 function licenseUri() {
-   echo get_option('cc_content_license_uri');
+   return get_option('cc_content_license_uri');
 } // licenseUri
 
 function isLicensed() {
@@ -61,7 +61,6 @@ function isLicensed() {
 
 function cc_showLicenseHtmlHead() {
   if (isLicensed()) {
-    $uri = licenseUri();
     echo '<link rel="license" href="' . licenseUri() . '" />';
   }
 } // cc_showLicenseHtmlHead
