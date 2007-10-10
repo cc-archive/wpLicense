@@ -3,7 +3,7 @@
 Plugin Name: wpLicense
 Plugin URI: http://wiki.creativecommons.org/WpLicense
 Description: Allows selection of a <a href="http://creativecommons.org">Creative Commons</a> license for blog content.
-Version: 0.9-rc2
+Version: 0.9
 Author: Nathan R. Yergler <nathan@creativecommons.org>
 Author URI: http://wiki.creativecommons.org/User:NathanYergler
 */
@@ -128,7 +128,7 @@ functions provided by the plugin
 
 <form name="license_options" method="post" action="${_SERVER[REQUEST_URI]}">
 
-<script type="text/javascript" src="http://api.creativecommons.org/jswidget/tags/0.91/complete.js?${jswidget_extra}">
+<script type="text/javascript" src="http://api.creativecommons.org/jswidget/tags/0.92/complete.js?${jswidget_extra}">
 </script>
 
 <input id="cc_js_seed_uri" type="hidden" value="${license_url}" />
