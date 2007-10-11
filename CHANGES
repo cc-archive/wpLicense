@@ -1,3 +1,6 @@
+Wed, 10 Oct 2007 17:08:11 -0700 Asheesh Laroia <asheesh@creativecommons.org>
+ * Updated JsWidget to use 0.92
+
 Tue, 28 Aug 2007 12:21:21 -0700 Asheesh Laroia <asheesh@creativecommons.org>
  * Updated JsWidget references to use version 0.91
  * Handle the removing of a license as well as the addition of a license
