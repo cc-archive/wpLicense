@@ -170,7 +170,7 @@ function wplicense_header() {
 	  	 
    if (strpos($_SERVER['REQUEST_URI'], "wpLicense") === FALSE) return; 	 
 	  	 
-   $css_url = get_bloginfo("wpurl") . "/wp-content/plugins/wpLicense/wplicense.css"; 	 
+   $css_url = get_bloginfo("wpurl") . "/wp-content/plugins/wplicense/wplicense.css"; 	 
 	  	
    echo "<link rel=\"stylesheet\" href=\"${css_url}\" />";
 } // wplicense_header
