@@ -34,7 +34,6 @@ function licenseHtml($display=1, $show_button=1) {
    $license_uri = get_option('cc_content_license_uri');
    $license_img = get_option('cc_content_license_img');
    $license_name = get_option('cc_content_license');
-  
    if ($show_button) {
      $image = <<< END_OF_STMT
 <img src="${license_img}" alt="${license_name}"/><br/>${license_name}
@@ -149,22 +148,17 @@ functions provided by the plugin
 <input name="remove_license" type="hidden" value="false" />
 <input name="submitted" type="hidden" value="wplicense" />
 
-              <tr><td colspan="2">&nbsp;</td></tr>
-              <tr><th>Include license badge in default footer?</th>
-                  <td><input type="checkbox" name="includeFooter" ${include_footer}" ></td> 
-             </tr> 
-               
-               <tr><th>&nbsp;</th>
-                   <td><input type="submit" value="save" />
-                       <input type="reset"  value="cancel" id="cancel" />
-                   </td>
-               </tr>
-               </td></tr>
-            </table>
-            </form>
-         </div>
+<div>
+	<strong>Include license badge in default footer?</strong>
+	 <input type="checkbox" name="includeFooter" ${include_footer}" >
+</div>
+<br/>
+<input type="submit" class="button-primary" value="Save Changes" />
+<input type="reset" class="button-primary" value="Cancel" id="cancel" />
 
-      </div>
+</form>
+</div>
+</div>
 
 END_OF_ADMIN;
 
@@ -179,10 +173,10 @@ function cc_addAdminPage() {
 
 
 // Include the necessary java-script libraries 	 
-function wplicense_header() { 	 
-	  	 
-   if (strpos($_SERVER['REQUEST_URI'], "wpLicense") === FALSE) return; 	 
-	  	 
+function wplicense_header() {
+	 	 	 
+   if (stripos($_SERVER['REQUEST_URI'], "wplicense") === FALSE) return; 	 
+
    $css_url = get_bloginfo("wpurl") . "/wp-content/plugins/wplicense/wplicense.css"; 	 
 	  	
    echo "<link rel=\"stylesheet\" href=\"${css_url}\" />";
@@ -230,8 +224,10 @@ function init_content_license($fullreset=false, $just_license_reset=false) {
 
 function post_form() {
     global $post_msg;
-
-    // check for standard return (using web services
+	
+	
+		    
+	// check for standard return (using web services
     if ( (isset($_POST['submitted'])) && ($_POST['submitted'] == 'wplicense')) {
         // check if the license should be removed
         if ($_POST['remove_license'] == '__remove' || 
@@ -241,14 +237,14 @@ function post_form() {
            $post_msg = "<h3>License information removed.</h3>";
 	   return;
         } // remove license
-
-        // check if the license was changed
+	
+  	// check if the license was changed
 	if ($_POST['cc_js_result_uri'] != get_option('cc_content_license_uri')) {
            // store the new license information
+		   
            update_option('cc_content_license', $_POST['cc_js_result_name']);
            update_option('cc_content_license_uri', $_POST['cc_js_result_uri']);
            update_option('cc_content_license_img', $_POST['cc_js_result_img']);
-
         }
 
         // store the settings
