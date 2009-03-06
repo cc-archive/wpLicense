@@ -6,6 +6,7 @@ Tested compatible with:
 * WordPress 2.0.11
 * WordPress 2.2.2
 * WordPress 2.3 beta (svn trunk on 2007-09-18)
+* WordPress 2.7.1
 
 Installing
 ----------
