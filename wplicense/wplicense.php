@@ -34,17 +34,45 @@ function licenseHtml($display=1, $show_button=1) {
    $license_uri = get_option('cc_content_license_uri');
    $license_img = get_option('cc_content_license_img');
    $license_name = get_option('cc_content_license');
-   if ($show_button) {
-     $image = <<< END_OF_STMT
-<img src="${license_img}" alt="${license_name}"/><br/>${license_name}
-END_OF_STMT;
-  } else {
-     $image = '';
-  }
+   $license_attribName = get_option('cc_content_attributionName');
+   $license_attribURL = get_option('cc_content_attributionURL');
 
+   	if ($show_button) {
+		$image = <<< END_OF_STMT
+<img src="${license_img}" alt="${license_name}"/>
+END_OF_STMT;
+  	} else {
+     	$image = '';
+  	}
+
+	if($license_attribURL) {
+		
+		$attrib  = <<< END_OF_STMT
+by <a xmlns:cc="http://creativecommons.org/ns#" href="${license_attribURL}" property="cc:attributionName" rel="cc:attributionURL">
+END_OF_STMT;
+
+		if($license_attribName)
+			$attrib .= $license_attribName;
+		else {	
+			$attrib .= $license_attribURL;
+		}
+		
+		$attrib .= "</a>";
+	}
+	else if($license_attribName) {
+		
+		$attrib = <<< END_OF_STMT
+by <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">${license_attribName}</span>
+END_OF_STMT;
+
+	}
+	
   $result = <<< END_OF_STMT
 <div class="wp_license" style="text-align:center;">
-<a rel="license" href="${license_uri}">$image</a>
+
+<a rel="license" href="${license_uri}">$image</a><br />
+This work ${attrib} is licensed under a <a rel="license" href="${license_uri}">${license_name}</a>.
+
 </div>
 END_OF_STMT;
 
@@ -118,6 +146,18 @@ $wp_url = get_bloginfo('wpurl');
 $license_url = get_option('cc_content_license_uri');
 $include_footer = get_option('cc_include_footer')=='1'?"checked":"";
 
+$attributionName = get_option('cc_content_attributionName');
+$attributionURL = get_option('cc_content_attributionURL');
+
+if(!$attributionName) {
+	global $current_user;
+	get_currentuserinfo();
+	$attributionName_eg = "<small>For example: ".$current_user->display_name."</small><br />";
+}
+	
+if(!$attributionURL)
+	$attributionURL_eg = "<small>For example: ".get_option('home')."</small><br />";
+
 if (! $license_url) { $jswidget_extra = "want_a_license=no_license_by_default"; }
 else                { $jswidget_extra = ""; }
 
@@ -151,6 +191,17 @@ functions provided by the plugin
 <div>
 	<strong>Include license badge in default footer?</strong>
 	 <input type="checkbox" name="includeFooter" ${include_footer}" >
+</div>
+<br />
+<div>
+	<strong>Attribution work to name:</strong><br/>
+	${attributionName_eg}
+	<input type="text" name="attributionName" value="${attributionName}" > 
+</div>
+<div>
+	<strong>Attribution work to URL:</strong><br/>
+	${attributionURL_eg}
+	<input type="text" size="40" name="attributionURL" value="${attributionURL}" > 
 </div>
 <br/>
 <input type="submit" class="button-primary" value="Save Changes" />
@@ -197,6 +248,10 @@ function init_content_license($fullreset=false, $just_license_reset=false) {
   add_option('cc_per_post', '0');
 
   add_option('cc_include_footer', '1');
+	
+  // cc:attributionName
+  add_option('cc_content_attributionName', '');
+  add_option('cc_content_attributionURL', '');
 
   // if reset is True, destructively reset the values
   if ($fullreset == true) {
@@ -211,6 +266,8 @@ function init_content_license($fullreset=false, $just_license_reset=false) {
      update_option('cc_per_post', '0');
 
      update_option('cc_include_footer', '1');
+  	 update_option('cc_content_attributionName', '');
+  	 update_option('cc_content_attributionURL', '');
 
   } // if resetting
 
@@ -254,7 +311,12 @@ function post_form() {
         } else {
            update_option('cc_include_footer', '0');
         }
-
+		
+		if (isset($_POST['attributionName']))
+			update_option('cc_content_attributionName', $_POST['attributionName']);
+		if (isset($_POST['attributionURL']))
+			update_option('cc_content_attributionURL', $_POST['attributionURL']);
+		
         $post_msg = "<h3>License information updated.</h3>";
     } // standard web services post 
 
