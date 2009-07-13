@@ -3,7 +3,7 @@
 Plugin Name: wpLicense
 Plugin URI: http://wiki.creativecommons.org/WpLicense
 Description: Allows selection of a <a href="http://creativecommons.org">Creative Commons</a> license for blog content.
-Version: 1.0-dev
+Version: 1.1.1
 Author: Nathan R. Yergler <nathan@creativecommons.org>
 Author URI: http://wiki.creativecommons.org/User:NathanYergler
 */
@@ -26,6 +26,19 @@ Author URI: http://wiki.creativecommons.org/User:NathanYergler
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
+/* fixes for wp-content hardcoding */
+
+// Pre-2.6 compatibility
+if ( ! defined( 'WP_CONTENT_URL' ) )
+      define( 'WP_CONTENT_URL', get_option( 'siteurl' ) . '/wp-content' );
+if ( ! defined( 'WP_CONTENT_DIR' ) )
+      define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
+if ( ! defined( 'WP_PLUGIN_URL' ) )
+      define( 'WP_PLUGIN_URL', WP_CONTENT_URL. '/plugins' );
+if ( ! defined( 'WP_PLUGIN_DIR' ) )
+      define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
+
 
 /* Template Functions */
 
@@ -218,7 +231,7 @@ END_OF_ADMIN;
 // Add the Content License link to the options page listing
 function cc_addAdminPage() {
 	if (function_exists('add_options_page')) {
-		add_options_page('Content License', '<img src="'.get_bloginfo('wpurl').'/wp-content/plugins/wpLicense/images/cc_admin.png" style="padding-right: 3px; position: relative; top: 2px;">Content License', 5, basename(__FILE__), 'license_options');
+		add_options_page('Content License', '<img src="'.get_bloginfo('wpurl'). WP_PLUGIN_DIR . '/wpLicense/images/cc_admin.png" style="padding-right: 3px; position: relative; top: 2px;">Content License', 5, basename(__FILE__), 'license_options');
 		}
 } // addAdminPage
 
@@ -228,7 +241,7 @@ function wplicense_header() {
 	 	 	 
    if (stripos($_SERVER['REQUEST_URI'], "wplicense") === FALSE) return; 	 
 
-   $css_url = get_bloginfo("wpurl") . "/wp-content/plugins/wplicense/wplicense.css"; 	 
+   $css_url = get_bloginfo("wpurl") . WP_PLUGIN_DIR . "/wplicense/wplicense.css"; 	 
 	  	
    echo "<link rel=\"stylesheet\" href=\"${css_url}\" />";
 } // wplicense_header
